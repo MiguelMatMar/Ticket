@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# 1. Si el archivo o carpeta existe de verdad dentro de WebSite/public/, úsalo
+# Esto sirve para que carguen tus CSS, JS e Imágenes
+RewriteCond %{DOCUMENT_ROOT}/WebSite/public%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/WebSite/public%{REQUEST_URI} -d
+RewriteRule ^(.*)$ WebSite/public/$1 [L]
+
+# 2. Si no es un archivo real, envía la petición al index.php que está en public
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ WebSite/public/index.php [L,QSA]

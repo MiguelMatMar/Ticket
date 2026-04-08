@@ -1,0 +1,351 @@
+.lookInfo > div {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.lookInfo {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px;
+}
+
+.lookInfo > div > input {
+    margin-bottom: 1px;
+}
+
+.lookInfo > div > a, i {
+    text-decoration: none;
+    color: #18507F;
+    font-size: 12px;
+}
+
+.lookInfo:hover {
+    cursor: pointer;
+    background-color: aliceblue;
+}
+
+.lookInfo p {
+    padding: 2px 7px;
+    background-color: #B2FFB4;
+    color: #04910C;
+    border-radius: 50%;
+    font-size: 12px;
+}
+
+.lookFilter .headerInfo * {
+    color: #101011;
+}
+
+.lookFilter .headerInfo {
+    display: flex;
+    justify-content: flex-start;
+}
+
+.body-tickets {
+    flex-direction: column;
+    background-color: white;
+    border-radius: 15px;
+    padding: 10px;
+    grid-column: span 3;
+}
+
+.body-tickets h1 {
+    font-size: 20px;
+    font-weight: 400;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+#tableTicketsList {
+    width: 100% !important;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+#tableTicketsList thead th {
+    text-align: left;
+    padding: 12px 15px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    border-bottom: 2px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#tableTicketsList thead th:hover {
+    background-color: #f0f4f8;
+    color: #18507F;
+}
+
+#tableTicketsList thead .sorting_asc,
+#tableTicketsList thead .sorting_desc {
+    color: #18507F;
+    border-bottom: 2px solid #18507F;
+}
+
+#tableTicketsList tbody td {
+    padding: 14px 15px;
+    border-bottom: 1px solid #f7f7f7;
+    font-size: 14px;
+    color: #444;
+}
+
+.ticket-subject-cell a {
+    color: #18507F;
+    text-decoration: none;
+    font-weight: 700;
+}
+.tickets-table {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.ticket-subject-cell a:hover {
+    text-decoration: underline;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.status-open {
+    background-color: #e1f5fe;
+    color: #0288d1;
+}
+
+.status-answered {
+    background-color: #e8f5e9;
+    color: #388e3c;
+}
+
+.status-customer-reply {
+    background-color: #fff3e0;
+    color: #e65100;
+}
+
+.status-closed {
+    background-color: #f5f5f5;
+    color: #757575;
+}
+
+.body-tickets-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 13px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#ticket-search {
+    padding: 7px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fcfcfc;
+    outline: none;
+}
+
+#ticket-search:focus {
+    border-color: #18507F;
+}
+
+.ticket-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #f0f0f0;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.btn-nav {
+    background-color: #18507F;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 5px;
+}
+
+.btn-nav:hover {
+    opacity: 0.9;
+}
+
+.btn-nav:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#ticket-length {
+    padding: 3px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+}
+
+.content-tickets {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 10px;
+    min-height: 100vh;
+    flex: 1;
+}
+
+#filter-dept, #filter-rol {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 6px 12px;
+    color: #555;
+    font-size: 14px;
+    outline: none;
+    height: 38px;
+    min-width: 180px;
+    transition: border-color 0.2s;
+}
+
+#filter-dept:focus, #filter-rol:focus {
+    border-color: #66afe9;
+}
+
+.navBar {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
+/* Badges de rol en tabla usuarios */
+.role-badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.role-cliente {
+    background-color: #e1f5fe;
+    color: #0288d1;
+}
+
+.role-soporte {
+    background-color: #fff3e0;
+    color: #e65100;
+}
+
+.role-admin {
+    background-color: #fce4ec;
+    color: #c62828;
+}
+
+/* Botones acciones tabla usuarios */
+.actions-cell {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.btn-action {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.btn-action:hover {
+    opacity: 0.8;
+}
+
+.btn-disable {
+    background-color: #fce4ec;
+    color: #c62828;
+}
+
+.btn-enable {
+    background-color: #e8f5e9;
+    color: #388e3c;
+}
+
+.btn-delete {
+    background-color: #ffebee;
+    color: #b71c1c;
+    border: 1px solid #ef9a9a;
+}
+
+.btn-delete:hover {
+    background-color: #ffcdd2;
+}
+
+/* Ocultar columnas secundarias en móvil (clase aplicada en <th> y <td>) */
+@media (max-width: 768px) {
+    .hide-mobile {
+        display: none;
+    }
+}
+
+/* ── Responsive ── */
+
+@media (max-width: 1024px) {
+    .body-main {
+        grid-template-columns: 1fr;
+    }
+
+    .body-tickets {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-tickets {
+        padding: 15px;
+    }
+
+    .body-tickets-nav {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .navBar {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    #filter-dept, #filter-rol, #ticket-search {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .ticket-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .body-tickets {
+        padding: 8px;
+    }
+}

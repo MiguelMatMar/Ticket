@@ -1,0 +1,198 @@
+.left-bar {
+    position: relative;
+    min-width: 230px;
+    background-color: #fff;
+    border-right: 3px solid rgb(224, 224, 224);
+    padding: 20px 10px;
+    font-family: sans-serif;
+    transition: all 0.3s ease;
+}
+
+.side-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 5px;
+}
+
+.menu-item {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.menu-item > * {
+    padding: 10px 0px;
+}
+
+.parent-box, .menu-item > a {
+    display: flex;
+    align-items: center;
+    padding: 20px 10px; 
+    transition: background-color 0.3s ease, color 0.3s ease;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 100%;
+}
+
+.parent-box {
+    justify-content: space-between;
+}
+
+.parent-box:hover, .menu-item > a:hover {
+    background-color: rgb(244, 244, 244);
+}
+
+.menu-item a {
+    text-decoration: none;
+    color: #444;
+    font-size: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.menu-item i {
+    width: 18px; 
+    text-align: center;
+    color: #777;
+    font-size: 16px;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.icons-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icons-container i {
+    font-size: 16px; 
+    color: #999;
+}
+
+.sub-menu {
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    gap: 2px;
+    animation: slideDown 0.3s ease-out forwards;
+}
+
+.sub-menu a {
+    padding: 8px 15px;
+    color: #666;
+    font-size: 14px; 
+    transition: all 0.2s ease;
+    border-radius: 5px;
+}
+
+.sub-menu a:hover {
+    background-color: rgb(244, 244, 244);
+    color: rgb(30, 86, 255);
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.nonvisible {
+    display: none !important;
+}
+
+.menu-item.active .parent-box {
+    background-color: rgb(235, 242, 255);
+}
+
+.menu-item.active .parent-box a, 
+.menu-item.active .parent-box i {
+    color: rgb(30, 86, 255);
+}
+
+.desplegarSideBar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 24%;
+    right: -24px;
+    z-index: 90;
+    background-color: #fff;
+    border-top: 1px solid #e7e7e7;
+    border-bottom: 1px solid #e7e7e7;
+    border-right: 1px solid #e7e7e7;
+    height: 70px;
+    width: 24px;
+}
+
+/* ── Collapsed (desktop) ── */
+
+.left-bar.collapsed {
+    min-width: 80px;
+
+    & i {
+        margin-left: 10px;
+    }
+}
+
+.menu-item a i,
+.parent-box a i {
+    min-width: 20px; 
+    display: inline-block;
+    text-align: center;
+}
+
+.left-bar.collapsed .menu-item a {
+    font-size: 0;
+    padding-left: 0;
+}
+
+.left-bar.collapsed .menu-item .parent-box {
+    font-size: 0;
+    padding-left: 0;
+}
+
+.left-bar.collapsed .icons-container,
+.left-bar.collapsed .sub-menu {
+    display: none !important;
+}
+
+.left-bar.collapsed .desplegarSideBar i {
+    transform: rotate(180deg);
+}
+
+/* ── Responsive móvil ── */
+
+@media (max-width: 768px) {
+
+    .left-bar {
+        position: fixed;
+        top: 0;
+        left: -260px;
+        height: 100vh;
+        min-width: 260px;
+        z-index: 999;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+        overflow-y: auto;
+        padding-top: 60px;
+    }
+
+    .left-bar.mobile-open {
+        left: 0;
+    }
+
+    /* Ocultar el botón de colapsar en móvil */
+    .desplegarSideBar {
+        display: none;
+    }
+}

@@ -1,0 +1,22 @@
+.contentForm{
+    gap: 20px;
+}
+.contentForm > p{
+    padding-top: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid grey;
+    margin-bottom: 10px;
+}
+.contentForm .optionForm{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid grey;
+    margin-bottom: 10px;
+    color: #5D5F63;
+}
+.contentForm .optionForm a{
+    text-decoration: none;
+    color: #18507F;
+}

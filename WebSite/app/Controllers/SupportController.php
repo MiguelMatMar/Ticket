@@ -1,0 +1,350 @@
+<?php
+namespace App\Controllers;
+
+use App\Core\Controller;
+use App\Models\ClientModel;
+use App\Models\TicketModel;
+use App\Models\NotificationModel;
+
+class SupportController extends Controller {
+    private $clientModel;
+    private $ticketModel;
+    private $notificationModel;
+
+    public function __construct() {
+        if (!isset($_SESSION['user_id'])) {
+            $this->redirect('/auth/index');
+            exit;
+        }
+        $this->clientModel       = new ClientModel();
+        $this->ticketModel       = new TicketModel();
+        $this->notificationModel = new NotificationModel();
+    }
+
+    public function faq() {
+        $userId = $_SESSION['user_id'];
+        $data = [
+            'usuario'       => $this->clientModel->getUserData($userId),
+            'tickets_lista' => $this->clientModel->getRecentTickets($userId),
+            'title'         => "FAQ"
+        ];
+        extract($data);
+        ob_start();
+        require __DIR__ . '/../Views/support/faq.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/layout/main.php';
+    }
+
+    public function store_ticket() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/support/open_ticket');
+            return;
+        }
+
+        $userId       = $_SESSION['user_id'];
+        $userRole     = $_SESSION['user_role'];
+        $asunto       = htmlspecialchars($_POST['affairUser']);
+        $mensaje      = $_POST['messageUser'];
+        $departamento = $_POST['departmentUser'];
+        $prioridad    = $_POST['priority'];
+
+        $ticketId = $this->ticketModel->createTicket($userId, $asunto, $mensaje, $departamento, $prioridad);
+
+        if (isset($_FILES['fileUsers']) && is_array($_FILES['fileUsers']['name'])) {
+            $uploadDir = __DIR__ . '/../../storage/tickets/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+            $totalArchivos = count($_FILES['fileUsers']['name']);
+            for ($i = 0; $i < $totalArchivos; $i++) {
+                if ($_FILES['fileUsers']['error'][$i] === UPLOAD_ERR_OK) {
+                    $originalName = $_FILES['fileUsers']['name'][$i];
+                    $fileType     = $_FILES['fileUsers']['type'][$i];
+                    $storedName   = uniqid('tkt_', true) . '_' . basename($originalName);
+                    $targetPath   = $uploadDir . $storedName;
+                    if (move_uploaded_file($_FILES['fileUsers']['tmp_name'][$i], $targetPath)) {
+                        $this->ticketModel->addAttachment($ticketId, $originalName, $storedName, $fileType);
+                    }
+                }
+            }
+        }
+
+        if ($userRole === 'cliente') {
+            $staffIds = $this->notificationModel->getStaffUsers();
+            $this->notificationModel->createBulk($staffIds, $ticketId, "Nuevo ticket #{$ticketId}: \"{$asunto}\"");
+        }
+
+        $this->redirect('/support/open_ticket?status=success');
+    }
+
+    public function open_ticket() {
+        $userId       = $_SESSION['user_id'];
+        $optionTicket = $_GET['dep'] ?? 'contacto';
+        $data = [
+            'usuario'      => $this->clientModel->getUserData($userId),
+            'title'        => "Abrir Ticket",
+            'optionTicket' => $optionTicket
+        ];
+        extract($data);
+        ob_start();
+        require __DIR__ . '/../Views/support/open_ticket.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/layout/main.php';
+    }
+
+    public function tickets() {
+        $userId   = $_SESSION['user_id'];
+        $userRole = $_SESSION['user_role'];
+        $usuario  = $this->clientModel->getUserData($userId);
+
+        if (in_array($userRole, ['soporte', 'admin'])) {
+            $tickets_lista = $this->ticketModel->getAllTickets();
+            $stats         = $this->ticketModel->getTicketStats();
+        } else {
+            $tickets_lista = $this->ticketModel->getTicketsByUser($userId);
+            $stats         = $this->ticketModel->getTicketStats($userId);
+        }
+
+        $data = [
+            'usuario'       => $usuario,
+            'tickets_lista' => $tickets_lista,
+            'stats'         => $stats,
+            'userRole'      => $userRole,
+            'title'         => "Tickets"
+        ];
+        extract($data);
+        ob_start();
+        require __DIR__ . '/../Views/support/tickets_list.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/layout/main.php';
+    }
+
+    public function ticket() {
+        if (!isset($_GET['ticketId'])) {
+            $this->redirect('/support/tickets');
+            return;
+        }
+
+        $ticketId = $_GET['ticketId'];
+        $userId   = $_SESSION['user_id'];
+        $userRole = $_SESSION['user_role'];
+        $usuario  = $this->clientModel->getUserData($userId);
+
+        $ticket = in_array($userRole, ['soporte', 'admin'])
+            ? $this->ticketModel->getTicketByIdAdmin($ticketId)
+            : $this->ticketModel->getTicketById($ticketId, $userId);
+
+        if (!$ticket) {
+            $this->redirect('/support/tickets');
+            return;
+        }
+
+        $data = [
+            'usuario'    => $usuario,
+            'ticket'     => $ticket,
+            'respuestas' => $this->ticketModel->getResponsesByTicketId($ticketId),
+            'adjuntos'   => $this->ticketModel->getAttachmentsByTicketId($ticketId),
+            'ticketId'   => $ticketId,
+            'userRole'   => $userRole,
+            'title'      => "Ticket #" . $ticketId . " - " . $ticket['asunto']
+        ];
+        extract($data);
+        ob_start();
+        require __DIR__ . '/../Views/support/ticket.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/layout/main.php';
+    }
+
+    public function download_file() {
+        $fileName  = $_GET['file'] ?? '';
+        $uploadDir = realpath(__DIR__ . '/../../storage/tickets/');
+        $filePath  = realpath($uploadDir . '/' . $fileName);
+
+        if ($filePath && file_exists($filePath) && strpos($filePath, $uploadDir) === 0) {
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/octet-stream');
+            header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+            header('Expires: 0');
+            header('Cache-Control: must-revalidate');
+            header('Pragma: public');
+            header('Content-Length: ' . filesize($filePath));
+            ob_clean();
+            flush();
+            readfile($filePath);
+            exit;
+        } else {
+            http_response_code(404);
+            echo "El archivo no existe o no tienes permiso para acceder a él.";
+        }
+    }
+
+    public function option_tickets() {
+        $userId = $_SESSION['user_id'];
+        $data = [
+            'usuario' => $this->clientModel->getUserData($userId),
+            'title'   => "Seleccionar Departamento"
+        ];
+        extract($data);
+        ob_start();
+        require __DIR__ . '/../Views/support/option_tickets.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/layout/main.php';
+    }
+
+    public function store_response() {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $this->redirect('/support/tickets');
+            return;
+        }
+
+        $userId   = $_SESSION['user_id'];
+        $userRole = $_SESSION['user_role'];
+        $ticketId = $_POST['ticket_id'];
+        $mensaje  = $_POST['mensaje'];
+
+        $this->ticketModel->addResponse($ticketId, $userId, $mensaje);
+
+        if (in_array($userRole, ['soporte', 'admin'])) {
+            $this->ticketModel->updateStatus($ticketId, 'answered');
+        } else {
+            $this->ticketModel->updateStatus($ticketId, 'customer-reply');
+        }
+
+        if (isset($_FILES['fileUsers']) && is_array($_FILES['fileUsers']['name'])) {
+            $uploadDir = __DIR__ . '/../../storage/tickets/';
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+            $totalArchivos = count($_FILES['fileUsers']['name']);
+            for ($i = 0; $i < $totalArchivos; $i++) {
+                if ($_FILES['fileUsers']['error'][$i] === UPLOAD_ERR_OK) {
+                    $originalName = $_FILES['fileUsers']['name'][$i];
+                    $fileType     = $_FILES['fileUsers']['type'][$i];
+                    $storedName   = uniqid('tkt_', true) . '_' . basename($originalName);
+                    $targetPath   = $uploadDir . $storedName;
+                    if (move_uploaded_file($_FILES['fileUsers']['tmp_name'][$i], $targetPath)) {
+                        $this->ticketModel->addAttachment($ticketId, $originalName, $storedName, $fileType);
+                    }
+                }
+            }
+        }
+
+        $this->ticketModel->updateLastActivity($ticketId);
+
+        if (in_array($userRole, ['soporte', 'admin'])) {
+            $ticket = $this->ticketModel->getTicketOwner($ticketId);
+            if ($ticket) {
+                $this->notificationModel->create($ticket['user_id'], $ticketId, "Tu ticket #{$ticketId} tiene una nueva respuesta.");
+            }
+        } else {
+            $staffIds = $this->notificationModel->getStaffUsers();
+            $this->notificationModel->createBulk($staffIds, $ticketId, "El cliente ha respondido al ticket #{$ticketId}.");
+        }
+
+        $this->redirect('/support/ticket?ticketId=' . $ticketId);
+    }
+
+    public function close_ticket() {
+        $ticketId = $_GET['ticketId'] ?? null;
+        $userId   = $_SESSION['user_id'];
+        $userRole = $_SESSION['user_role'];
+
+        if ($ticketId) {
+            if (!in_array($userRole, ['soporte', 'admin'])) {
+                $ticket = $this->ticketModel->getTicketById($ticketId, $userId);
+                if (!$ticket) {
+                    $this->redirect('/support/tickets');
+                    return;
+                }
+            }
+            $this->ticketModel->updateStatus($ticketId, 'closed');
+            $this->ticketModel->updateLastActivity($ticketId);
+        }
+
+        $this->redirect('/support/ticket?ticketId=' . $ticketId);
+    }
+
+    public function reopen_ticket() {
+        $ticketId = $_GET['ticketId'] ?? null;
+        $userRole = $_SESSION['user_role'];
+
+        if (!in_array($userRole, ['soporte', 'admin'])) {
+            $this->redirect('/support/tickets');
+            return;
+        }
+
+        if ($ticketId) {
+            $this->ticketModel->updateStatus($ticketId, 'open');
+            $this->ticketModel->updateLastActivity($ticketId);
+        }
+
+        $this->redirect('/support/ticket?ticketId=' . $ticketId);
+    }
+
+    public function users() {
+        if ($_SESSION['user_role'] !== 'admin') {
+            $this->redirect('/support/tickets');
+            return;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $data = [
+            'usuario'    => $this->clientModel->getUserData($userId),
+            'users_list' => $this->ticketModel->getAllUsers(),
+            'title'      => "Gestión de Usuarios"
+        ];
+        extract($data);
+        ob_start();
+        require __DIR__ . '/../Views/admin/users.php';
+        $content = ob_get_clean();
+        require __DIR__ . '/../Views/layout/main.php';
+    }
+
+    public function toggle_user_status() {
+        if ($_SESSION['user_role'] !== 'admin') {
+            $this->redirect('/support/tickets');
+            return;
+        }
+
+        $targetUserId = $_GET['userId'] ?? null;
+        $newStatus    = $_GET['status'] ?? null;
+
+        if ($targetUserId && in_array($newStatus, ['0', '1'])) {
+            $this->ticketModel->updateUserStatus($targetUserId, $newStatus);
+        }
+
+        $this->redirect('/support/users');
+    }
+
+    /**
+     * Elimina definitivamente una cuenta de usuario.
+     * Guarda sus datos en eliminated_accounts para bloquear futuros registros
+     * con el mismo email. Solo accesible para administradores.
+     */
+    public function delete_user() {
+        if ($_SESSION['user_role'] !== 'admin') {
+            $this->redirect('/support/tickets');
+            return;
+        }
+
+        $targetUserId = $_GET['userId'] ?? null;
+        $adminId      = $_SESSION['user_id'];
+
+        // No permitir que el admin se elimine a sí mismo
+        if (!$targetUserId || $targetUserId == $adminId) {
+            $this->redirect('/support/users');
+            return;
+        }
+
+        $user = $this->ticketModel->getUserById($targetUserId);
+
+        if (!$user) {
+            $this->redirect('/support/users');
+            return;
+        }
+
+        // 1. Registrar en eliminated_accounts
+        $this->ticketModel->registerEliminatedAccount($user, $adminId);
+
+        // 2. Eliminar el usuario (CASCADE borra sus tickets, respuestas y notificaciones)
+        $this->ticketModel->deleteUser($targetUserId);
+
+        $this->redirect('/support/users');
+    }
+}

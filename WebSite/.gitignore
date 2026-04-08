@@ -1,0 +1,13 @@
+# Variables de entorno 
+.env
+
+# Dependencias
+/vendor/
+
+# Logs y cachés
+*.log
+/storage/logs/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
