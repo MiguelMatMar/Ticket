@@ -39,7 +39,7 @@
                     <p>SOPORTE</p>
                 </div>
                 <div class="bodyInfo">
-                    <a href="#">
+                    <a href="/support/tickets">
                         <i class="fa-solid fa-ticket"></i>
                         Mis Tickets de Soporte
                     </a>
@@ -47,7 +47,7 @@
                         <i class="fa-solid fa-circle-info"></i>
                         Preguntas Frecuentes - FAQ
                     </a>
-                    <a href="#">
+                    <a href="/support/option_tickets">
                         <i class="fa-solid fa-comments"></i>
                         Abrir Ticket
                     </a>
