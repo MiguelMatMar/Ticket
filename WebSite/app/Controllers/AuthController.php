@@ -94,7 +94,7 @@ class AuthController extends Controller {
         $address2        = trim(htmlspecialchars($_POST['address2'] ?? ''));
         $city            = trim(htmlspecialchars($_POST['city'] ?? ''));
         $state           = trim(htmlspecialchars($_POST['state'] ?? ''));
-        $postcode        = trim(htmlspecialchars($_POST['postcode'] ?? ''));
+        $postcode        = trim(htmlspecialchars($_POST['postalCode'] ?? ''));
         $country         = trim(htmlspecialchars($_POST['country'] ?? ''));
         $password        = $_POST['password'] ?? '';
         $confirmPassword = $_POST['confirmPassword'] ?? '';

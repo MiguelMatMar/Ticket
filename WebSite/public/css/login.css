@@ -231,6 +231,34 @@ button:hover {
     width: 100% !important; 
 }
 
+/* Modal de Registro */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none; /* Controlado por JS */
+    align-items: center; justify-content: center;
+    z-index: 1000;
+}
+.modal-content {
+    background: white; padding: 30px; border-radius: 12px;
+    max-width: 500px; width: 90%; text-align: center;
+}
+.modal-options {
+    display: flex; gap: 20px; margin: 25px 0;
+}
+.modal-card {
+    flex: 1; padding: 25px; border: 2px solid #f0f0f0;
+    border-radius: 10px; cursor: pointer; transition: 0.3s;
+}
+.modal-card:hover {
+    border-color: #004a87; background: #f8fbff;
+}
+.modal-card i { font-size: 35px; color: #004a87; margin-bottom: 10px; }
+.btn-close-modal {
+    background: #888; padding: 8px 20px; font-size: 14px;
+}
+
 @media (max-width: 800px) {
     .form-cols-wrapper {
         flex-direction: column;

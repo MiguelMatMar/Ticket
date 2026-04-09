@@ -11,7 +11,7 @@
 <body>
     <div class="registration-container">
         <div class="panel-header">
-            <h1>Registro</h1>
+            <h1 id="register-title">Registro</h1>
             <p>Crea tu cuenta en DonDigital</p>
         </div>
 
@@ -27,9 +27,9 @@
                         <label>Apellidos</label>
                         <input type="text" name="surnames" required placeholder="Tus Apellidos">
                     </div>
-                    <div class="form-group">
-                        <label>Empresa (Opcional)</label>
-                        <input type="text" name="company" placeholder="Empresa (Opcional)">
+                    <div class="form-group" id="group-company">
+                        <label>Empresa</label>
+                        <input type="text" name="company" placeholder="Nombre de la empresa">
                     </div>
                     <div class="form-group">
                         <label>Email</label>
@@ -56,24 +56,26 @@
                         <input type="text" name="address2" placeholder="Piso, puerta, bloque...">
                     </div>
                     <div class="form-group">
-                        <label>Ciudad</label>
-                        <input type="text" name="city" required placeholder="Ciudad">
+                        <label>País</label>
+                        <select name="country" id="country-select" class="custom-select">
+                            <option value="">Seleccione País</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label>Provincia</label>
-                        <input type="text" name="state" required placeholder="Provincia">
+                        <label>Provincia / Estado</label>
+                        <select name="state" id="state-select" class="custom-select" required disabled>
+                            <option value="">Seleccione País primero</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ciudad</label>
+                        <select name="city" id="city-select" class="custom-select" required disabled>
+                            <option value="">Seleccione Provincia primero</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label>Código Postal</label>
-                        <input type="text" name="postcode" required placeholder="C.P.">
-                    </div>
-                    <div class="form-group">
-                        <label>País</label>
-                        <select name="country" class="custom-select">
-                            <option value="ES">España</option>
-                            <option value="PT">Portugal</option>
-                            <option value="FR">Francia</option>
-                        </select>
+                        <input type="text" name="postalCode" required placeholder="Código Postal">
                     </div>
                 </div>
             </div>
@@ -86,7 +88,7 @@
                         <input type="password" id="password" name="password" required placeholder="********">
                         <i class="fa-solid fa-eye" id="togglePassword"></i>
                     </div>
-
+                    
                     <div class="password-strength-wrapper">
                         <div class="strength-bar"><div id="strength-meter"></div></div>
                         <p id="strength-text">Seguridad: <span>Muy débil</span></p>
@@ -98,7 +100,7 @@
                         <li id="req-number" class="invalid"><i class="fas fa-circle"></i> Un número</li>
                         <li id="req-special" class="invalid"><i class="fas fa-circle"></i> Un carácter especial (@$!%*?&)</li>
                     </ul>
-                    
+
                     <label style="margin-top:15px; display:block;">Confirmar Contraseña</label>
                     <div class="input-wrapper">
                         <input type="password" id="confirmPassword" name="confirmPassword" required placeholder="********">
@@ -115,15 +117,6 @@
             </div>
         </form>
     </div>
-
-    <?php if(isset($_SESSION['flash'])): ?>
-        <div id="flash-data" 
-             data-type="<?= $_SESSION['flash']['type'] ?>" 
-             data-msg="<?= $_SESSION['flash']['msg'] ?>" 
-             style="display:none;">
-        </div>
-    <?php unset($_SESSION['flash']); endif; ?>
-
     <script src="/js/auth.js"></script>
 </body>
 </html>

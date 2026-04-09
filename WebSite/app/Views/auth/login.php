@@ -36,9 +36,27 @@
         </form>
 
         <div class="footer-link">
-            <p>¿No tienes cuenta? <a href="/auth/register">Regístrate aquí</a></p>
+            <p>¿No tienes cuenta? <a href="#" id="openRegisterModal">Regístrate aquí</a></p>
             <br>
             <a href="#">¿Olvidaste tu contraseña?</a>
+        </div>
+    </div>
+
+    <div id="typeModal" class="modal-overlay" style="display:none;">
+        <div class="modal-content">
+            <h2>Tipo de Registro</h2>
+            <p>Seleccione cómo desea registrarse en DonDigital</p>
+            <div class="modal-options">
+                <div class="modal-card" onclick="goToRegister('persona')">
+                    <i class="fas fa-user"></i>
+                    <h3>Persona Física</h3>
+                </div>
+                <div class="modal-card" onclick="goToRegister('empresa')">
+                    <i class="fas fa-building"></i>
+                    <h3>Empresa</h3>
+                </div>
+            </div>
+            <button class="btn-close-modal" id="closeModal">Cancelar</button>
         </div>
     </div>
 
