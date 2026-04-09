@@ -32,13 +32,18 @@
                     <div class="form-group">
                         <label for="departmentUser">Departamento</label>
                         <select name="departmentUser" id="departmentUser">
-                            <option value="tecnico" <?php echo ($optionTicket == 'tecnico') ? 'selected' : ''; ?>>Soporte Técnico</option>
+                            <option value="tecnico" <?php echo ($optionTicket == 'tecnico') ? 'selected' : ''; ?>>Soporte Informático</option>
+                            
+                            <option value="web" <?php echo ($optionTicket == 'web') ? 'selected' : ''; ?>>Soporte Web</option>
+                            
+                            <option value="hosting" <?php echo ($optionTicket == 'hosting') ? 'selected' : ''; ?>>Soporte Hosting</option>
+                            
                             <option value="dominios" <?php echo ($optionTicket == 'dominios') ? 'selected' : ''; ?>>Dominios</option>
                             <option value="gestion" <?php echo ($optionTicket == 'gestion') ? 'selected' : ''; ?>>Gestión / Facturación</option>
                             <option value="contacto" <?php echo ($optionTicket == 'contacto') ? 'selected' : ''; ?>>Contacto</option>
                             <option value="sugerencias" <?php echo ($optionTicket == 'sugerencias') ? 'selected' : ''; ?>>Sugerencias</option>
-                            <option value="afiliados" <?php echo ($optionTicket == 'afiliados') ? 'selected' : ''; ?>>Afiliados</option>
-                        </select>
+                            
+                            </select>
                     </div>
                     <div class="form-group">
                         <label for="priority">Prioridad</label>

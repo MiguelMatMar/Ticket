@@ -28,7 +28,15 @@ nav {
     align-items: center;
     gap: 10px;
     min-width: 220px;
+    padding-top: 4%;
+    padding-bottom: 4%;
     justify-content: center;
+    transition: background-color 0.2s ease;
+    &:hover {
+        cursor: pointer;
+        background-color: #00000019;
+        border-radius: 5px;
+    }
 }
 
 .img-perfil {

@@ -6,31 +6,34 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function drop_down() {
-    // 1. Apartado del perfil
-    let drop = document.getElementById('drop-down');
-    let iconDown = document.getElementById('angle-down');
-    let iconUp = document.getElementById('angle-up');
-    let dropbox = document.getElementById('drop-down-box');
+    // CAMBIO: Ahora seleccionamos el contenedor padre '.perfil-nav'
+    const drop = document.querySelector('.perfil-nav');
+    const iconDown = document.getElementById('angle-down');
+    const iconUp = document.getElementById('angle-up');
+    const dropbox = document.getElementById('drop-down-box');
 
-    // 2. Apartado de notificaciones
-    let notificationIcon = document.getElementById('notification-icon');
-    let notificationBox = document.getElementById('notification-box');
+    const notificationIcon = document.getElementById('notification-icon');
+    const notificationBox = document.getElementById('notification-box');
 
     function closeAll() {
-        [dropbox, notificationBox].forEach(box => box.classList.add('nonvisible'));
+        [dropbox, notificationBox].forEach(box => {
+            if (box) box.classList.add('nonvisible');
+        });
 
         if (iconDown) iconDown.classList.remove('nonvisible');
         if (iconUp) iconUp.classList.add('nonvisible');
 
-        notificationIcon.classList.remove('dropped');
+        if (notificationIcon) notificationIcon.classList.remove('dropped');
     }
 
-    // EVENTO PERFIL
-    if (drop) {
+    // EVENTO PERFIL: Ahora se activa al hacer clic en cualquier parte de .perfil-nav
+    if (drop && dropbox) {
         drop.addEventListener('click', (e) => {
             e.stopPropagation();
-            let isOpen = !dropbox.classList.contains('nonvisible');
-            closeAll();
+            const isOpen = !dropbox.classList.contains('nonvisible');
+            
+            closeAll(); // Cierra otros menús antes de abrir este
+
             if (!isOpen) {
                 dropbox.classList.remove('nonvisible');
                 if (iconDown) iconDown.classList.add('nonvisible');
@@ -40,15 +43,19 @@ function drop_down() {
     }
 
     // EVENTO NOTIFICACIONES
-    notificationIcon.addEventListener('click', (e) => {
-        e.stopPropagation();
-        let isOpen = !notificationBox.classList.contains('nonvisible');
-        closeAll();
-        if (!isOpen) {
-            notificationBox.classList.remove('nonvisible');
-            notificationIcon.classList.add('dropped');
-        }
-    });
+    if (notificationIcon && notificationBox) {
+        notificationIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpen = !notificationBox.classList.contains('nonvisible');
+            
+            closeAll();
+
+            if (!isOpen) {
+                notificationBox.classList.remove('nonvisible');
+                notificationIcon.classList.add('dropped');
+            }
+        });
+    }
 
     document.addEventListener('click', () => {
         closeAll();

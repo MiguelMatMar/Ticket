@@ -12,9 +12,20 @@
             <p>Si no puedes encontrar una solución a tu problema en la base de conocimientos, puedes enviarnos un ticket de soporte eligiendo el departamento adecuado abajo.</p>
 
             <div class="optionForm">
-                <a href="/support/open_ticket?dep=tecnico"> <i class="fa-solid fa-envelope"></i> Soporte técnico</a>
+                <a href="/support/open_ticket?dep=tecnico"> <i class="fa-solid fa-envelope"></i> Soporte Informático</a>
                 <p>Departamento para consultas técnicas</p>
             </div>
+
+            <div class="optionForm">
+                <a href="/support/open_ticket?dep=web"> <i class="fa-solid fa-envelope"></i> Soporte Web</a>
+                <p>Departamento para incidencias y cambios en tu web</p>
+            </div>
+
+            <div class="optionForm">
+                <a href="/support/open_ticket?dep=hosting"> <i class="fa-solid fa-envelope"></i> Soporte Hosting</a>
+                <p>Consultas sobre alojamiento y servidores</p>
+            </div>
+
             <div class="optionForm">
                 <a href="/support/open_ticket?dep=dominios"> <i class="fa-solid fa-envelope"></i> Dominios</a>
                 <p>Departamento para consultas de dominios</p>
@@ -31,10 +42,7 @@
                 <a href="/support/open_ticket?dep=sugerencias"> <i class="fa-solid fa-envelope"></i> Sugerencias</a>
                 <p>Sugerencias</p>
             </div>
-            <div class="optionForm">
-                <a href="/support/open_ticket?dep=afiliados"> <i class="fa-solid fa-envelope"></i> Afiliados</a>
-                <p>Departamento de Afiliados</p>
+
             </div>
-        </div>
     </div>
 </div>
