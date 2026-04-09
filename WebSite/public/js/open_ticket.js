@@ -117,3 +117,23 @@ function cancelButton(){
         });
     }
 }
+document.addEventListener('DOMContentLoaded', function() {
+    const prioritySelect = document.getElementById('priority');
+
+    function updateSelectColor() {
+        // Quitamos todas las clases posibles de color
+        prioritySelect.classList.remove('low', 'medium', 'high', 'critical');
+        
+        // Obtenemos el valor actual (ej: "lowPriority") y limpiamos el texto "Priority"
+        const value = prioritySelect.value.replace('Priority', '');
+        
+        // Añadimos la clase limpia (ej: "low")
+        prioritySelect.classList.add(value);
+    }
+
+    // Escuchar cuando el usuario cambia la opción
+    prioritySelect.addEventListener('change', updateSelectColor);
+
+    // Ejecutar al cargar la página para que pinte la opción por defecto (Media)
+    updateSelectColor();
+});

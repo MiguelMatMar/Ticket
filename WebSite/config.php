@@ -14,8 +14,8 @@ if (file_exists($envFile)) {
 return [
     'db' => [
         'host'    => $_ENV['DB_HOST']    ?? 'localhost',
-        'name'    => $_ENV['DB_NAME']    ?? '',
-        'user'    => $_ENV['DB_USER']    ?? '',
+        'name'    => $_ENV['DB_NAME']    ?? 'sdondigital_ticket_system',
+        'user'    => $_ENV['DB_USER']    ?? 'root',
         'pass'    => $_ENV['DB_PASS']    ?? '',
         'charset' => $_ENV['DB_CHARSET'] ?? 'utf8mb4',
     ]

@@ -15,6 +15,34 @@
     flex-wrap: wrap;
     align-self: stretch;
 }
+/* 1. El PADRE debe tener overflow hidden para recortar el icono */
+.box.tickets {
+    position: relative; /* Referencia para el absolute */
+    overflow: hidden;   /* Esto evita que el icono se salga de la caja */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* 2. El CONTENEDOR del icono debe ser ABSOLUTE */
+.box.tickets .icon {
+    position: absolute !important; /* <--- CAMBIA DE RELATIVE A ABSOLUTE */
+    right: 20px;
+    bottom: 10px;
+    width: auto;
+    height: auto;
+    z-index: 1;         /* Detrás del texto */
+    display: block;
+    pointer-events: none;
+}
+
+/* 3. El icono (i) */
+.box.tickets .icon i {
+    font-size: 100px;
+    color: rgba(124, 123, 123, 0.449) !important; /* 0.2 para que sea sutil */
+    display: block;
+    transform: rotate(-15deg);
+}
 
 .box {
     flex: 1;

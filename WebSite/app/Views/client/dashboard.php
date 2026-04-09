@@ -5,7 +5,13 @@
             <div class="box tickets">
                 <p id="tickets-number"><?= $stats['tickets_count'] ?></p>
                 <p>Tickets de Soporte</p>
+                            <div class="icon">
+
+                <i class="fas fa-comments"></i>
+
             </div>
+            </div>
+
         </section>
 
         <section class="info">

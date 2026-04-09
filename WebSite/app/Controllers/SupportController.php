@@ -35,45 +35,97 @@ class SupportController extends Controller {
         require __DIR__ . '/../Views/layout/main.php';
     }
 
-    public function store_ticket() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            $this->redirect('/support/open_ticket');
-            return;
-        }
+public function store_ticket() {
+    // 1. Verificación básica de seguridad y método
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        $this->redirect('/support/open_ticket');
+        return;
+    }
 
-        $userId       = $_SESSION['user_id'];
-        $userRole     = $_SESSION['user_role'];
-        $asunto       = htmlspecialchars($_POST['affairUser']);
-        $mensaje      = $_POST['messageUser'];
-        $departamento = $_POST['departmentUser'];
-        $prioridad    = $_POST['priority'];
+    // 2. Obtención segura de datos de sesión
+    $userId   = $_SESSION['user_id'] ?? null;
+    $userRole = $_SESSION['user_role'] ?? 'cliente';
 
-        $ticketId = $this->ticketModel->createTicket($userId, $asunto, $mensaje, $departamento, $prioridad);
+    if (!$userId) {
+        $this->redirect('/auth/index');
+        return;
+    }
 
-        if (isset($_FILES['fileUsers']) && is_array($_FILES['fileUsers']['name'])) {
-            $uploadDir = __DIR__ . '/../../storage/tickets/';
-            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
-            $totalArchivos = count($_FILES['fileUsers']['name']);
-            for ($i = 0; $i < $totalArchivos; $i++) {
-                if ($_FILES['fileUsers']['error'][$i] === UPLOAD_ERR_OK) {
-                    $originalName = $_FILES['fileUsers']['name'][$i];
-                    $fileType     = $_FILES['fileUsers']['type'][$i];
-                    $storedName   = uniqid('tkt_', true) . '_' . basename($originalName);
-                    $targetPath   = $uploadDir . $storedName;
-                    if (move_uploaded_file($_FILES['fileUsers']['tmp_name'][$i], $targetPath)) {
-                        $this->ticketModel->addAttachment($ticketId, $originalName, $storedName, $fileType);
-                    }
+    // 3. Recogida de datos del formulario
+    $asunto       = htmlspecialchars($_POST['affairUser']);
+    $mensaje      = htmlspecialchars($_POST['messageUser']);
+    $departamento = $_POST['departmentUser'];
+    $prioridad    = $_POST['priority'];
+
+    // 4. Creación del ticket en la base de datos
+    $ticketId = $this->ticketModel->createTicket($userId, $asunto, $mensaje, $departamento, $prioridad);
+
+    // 5. Gestión de archivos adjuntos
+    if (isset($_FILES['fileUsers']) && is_array($_FILES['fileUsers']['name'])) {
+        $uploadDir = __DIR__ . '/../../storage/tickets/';
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+        
+        $totalArchivos = count($_FILES['fileUsers']['name']);
+        for ($i = 0; $i < $totalArchivos; $i++) {
+            if ($_FILES['fileUsers']['error'][$i] === UPLOAD_ERR_OK) {
+                $originalName = $_FILES['fileUsers']['name'][$i];
+                $fileType     = $_FILES['fileUsers']['type'][$i];
+                $storedName   = uniqid('tkt_', true) . '_' . basename($originalName);
+                $targetPath   = $uploadDir . $storedName;
+                
+                if (move_uploaded_file($_FILES['fileUsers']['tmp_name'][$i], $targetPath)) {
+                    $this->ticketModel->addAttachment($ticketId, $originalName, $storedName, $fileType);
                 }
             }
         }
+    }
 
-        if ($userRole === 'cliente') {
-            $staffIds = $this->notificationModel->getStaffUsers();
+    // 6. Notificaciones a Staff
+    if ($userRole === 'cliente') {
+        $staffIds = $this->notificationModel->getStaffUsers();
+        if (!empty($staffIds)) {
             $this->notificationModel->createBulk($staffIds, $ticketId, "Nuevo ticket #{$ticketId}: \"{$asunto}\"");
         }
-
-        $this->redirect('/support/open_ticket?status=success');
     }
+
+    // 7. PREPARACIÓN DE LA VISTA CON SWEETALERT
+    // Cargamos los datos necesarios para que el layout (main.php) no de errores
+    $data = [
+        'usuario'     => $this->clientModel->getUserData($userId),
+        'title'       => "Ticket Enviado",
+        'redirect_to' => '/support/tickets' // Ruta a la que irá tras el OK
+    ];
+    extract($data);
+
+    ob_start();
+    ?>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: '¡Ticket #' + <?= $ticketId ?> + ' Enviado!',
+                text: 'Tu consulta se ha registrado correctamente.',
+                icon: 'success',
+                confirmButtonColor: '#004a87',
+                confirmButtonText: 'Ver mis tickets',
+                allowOutsideClick: false
+            }).then((result) => {
+                if (result.isConfirmed || result.dismiss) {
+                    window.location.href = "<?= $redirect_to ?>";
+                }
+            });
+        });
+    </script>
+    <div style="height: 60vh; display: flex; align-items: center; justify-content: center;">
+        <p>Procesando envío... por favor espera.</p>
+    </div>
+    <?php
+    $content = ob_get_clean();
+
+    // Cargamos el layout principal para que la página no se vea vacía
+    require __DIR__ . '/../Views/layout/main.php';
+    exit;
+}
 
     public function open_ticket() {
         $userId       = $_SESSION['user_id'];
