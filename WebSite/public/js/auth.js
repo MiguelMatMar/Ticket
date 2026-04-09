@@ -36,7 +36,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Función global para redirigir desde el modal
     window.goToRegister = function(type) {
         window.location.href = `/auth/register?type=${type}`;
     };
@@ -52,7 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (registerTitle) registerTitle.innerText = 'Registro Persona Física';
     } else if (userType === 'empresa') {
         if (registerTitle) registerTitle.innerText = 'Registro Empresa';
-        const companyInput = document.getElementById('company_name');
+        const companyInput = document.querySelector('input[name="company"]');
         if (companyInput) companyInput.setAttribute('required', 'required');
     }
 
@@ -80,11 +79,13 @@ document.addEventListener('DOMContentLoaded', function() {
             };
 
             for (const key in checks) {
-                if (checks[key]) {
-                    requirements[key].classList.add('valid');
-                    score++;
-                } else {
-                    requirements[key].classList.remove('valid');
+                if (requirements[key]) {
+                    if (checks[key]) {
+                        requirements[key].classList.add('valid');
+                        score++;
+                    } else {
+                        requirements[key].classList.remove('valid');
+                    }
                 }
             }
 
@@ -161,129 +162,56 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- 7. LOCALIZACIÓN GLOBAL (API Optimizada) ---
+    // --- 7. LOCALIZACIÓN LOCAL  ---
     const countrySelect = document.getElementById('country-select');
     const stateSelect = document.getElementById('state-select');
     const citySelect = document.getElementById('city-select');
+    const zipInput = document.querySelector('input[name="postalCode"]');
 
     if (countrySelect && stateSelect && citySelect) {
+        let locationData = [];
 
-        const apiBase = "https://countriesnow.space/api/v0.1/countries";
-
-        // 1. Países (lo dejamos tal cual porque funciona)
-        fetch(apiBase)
+        // Cargar el JSON local
+        fetch('/json/countries.json')
             .then(res => res.json())
-            .then(data => {
+            .then(json => {
+                locationData = json.data;
                 countrySelect.innerHTML = '<option value="">Seleccione País</option>';
-
-                data.data.forEach(country => {
-                    const opt = document.createElement('option');
-                    opt.value = country.country;
-                    opt.textContent = country.country;
-                    countrySelect.appendChild(opt);
+                locationData.forEach(item => {
+                    const opt = new Option(item.country, item.country);
+                    countrySelect.add(opt);
                 });
             })
-            .catch(err => console.error("Error cargando países:", err));
+            .catch(err => console.error("Error cargando JSON local:", err));
 
-        // 2. País -> Provincias
-        countrySelect.addEventListener('change', async function() {
+        // Evento cambio de País
+        countrySelect.addEventListener('change', function() {
             const countryName = this.value;
-
-            stateSelect.innerHTML = '<option value="">Cargando estados...</option>';
-            stateSelect.disabled = true;
-
-            citySelect.innerHTML = '<option value="">Seleccione provincia primero</option>';
+            citySelect.innerHTML = '<option value="">Seleccione Ciudad</option>';
             citySelect.disabled = true;
 
-            if (!countryName) return;
-
-            try {
-                const response = await fetch(`${apiBase}/states`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ country: countryName })
-                });
-
-                const resData = await response.json();
-
-                // 🔥 FIX ESPAÑA
-                if (!resData.data.states || resData.data.states.length === 0) {
-
-                    if (countryName === 'Spain') {
-                        const spainStates = [
-                            "Andalucía","Madrid","Cataluña","Valencia","Galicia",
-                            "Castilla y León","País Vasco","Canarias","Baleares",
-                            "Murcia","Castilla-La Mancha","Aragón","Extremadura",
-                            "Navarra","La Rioja","Cantabria","Asturias","Ceuta","Melilla"
-                        ];
-
-                        stateSelect.innerHTML = '<option value="">Seleccione Provincia</option>';
-
-                        spainStates.forEach(state => {
-                            const opt = document.createElement('option');
-                            opt.value = state;
-                            opt.textContent = state;
-                            stateSelect.appendChild(opt);
-                        });
-
-                        stateSelect.disabled = false;
-                        return;
-                    }
-
-                    stateSelect.innerHTML = '<option value="">No disponible</option>';
-                    return;
-                }
-
-                // Caso normal
-                stateSelect.innerHTML = '<option value="">Seleccione Provincia/Estado</option>';
-
-                resData.data.states.forEach(state => {
-                    const opt = document.createElement('option');
-                    opt.value = state.name;
-                    opt.textContent = state.name;
-                    stateSelect.appendChild(opt);
-                });
-
+            // Como el JSON no tiene provincias, usamos el país como provincia predeterminada
+            if (countryName) {
+                stateSelect.innerHTML = `<option value="${countryName}">${countryName}</option>`;
                 stateSelect.disabled = false;
 
-            } catch (e) {
-                console.error("Error cargando estados:", e);
-                stateSelect.innerHTML = '<option value="">Error al cargar</option>';
+                const countryMatch = locationData.find(c => c.country === countryName);
+                if (countryMatch && countryMatch.cities) {
+                    citySelect.innerHTML = '<option value="">Seleccione Ciudad</option>';
+                    countryMatch.cities.forEach(city => {
+                        citySelect.add(new Option(city, city));
+                    });
+                    citySelect.disabled = false;
+                }
+            } else {
+                stateSelect.innerHTML = '<option value="">Seleccione País primero</option>';
+                stateSelect.disabled = true;
             }
         });
 
-        // 3. Provincia -> Ciudades (igual)
-        stateSelect.addEventListener('change', async function() {
-            const countryName = countrySelect.value;
-            const stateName = this.value;
-
-            citySelect.innerHTML = '<option value="">Cargando ciudades...</option>';
-            citySelect.disabled = true;
-
-            try {
-                const response = await fetch(`${apiBase}/state/cities`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ country: countryName, state: stateName })
-                });
-
-                const resData = await response.json();
-
-                citySelect.innerHTML = '<option value="">Seleccione Ciudad</option>';
-
-                resData.data.forEach(city => {
-                    const opt = document.createElement('option');
-                    opt.value = city;
-                    opt.textContent = city;
-                    citySelect.appendChild(opt);
-                });
-
-                citySelect.disabled = false;
-
-            } catch (e) {
-                console.error("Error cargando ciudades:", e);
-                citySelect.innerHTML = '<option value="">Error al cargar</option>';
-            }
+        // Evento cambio de Ciudad (Foco al Código Postal)
+        citySelect.addEventListener('change', function() {
+            if (zipInput) zipInput.focus();
         });
     }
 });

@@ -3,159 +3,115 @@ document.addEventListener('DOMContentLoaded', () => {
     alertMessages();
 });
 
-function initLocationSelects() {
-    const countrySelect = document.getElementById('pais');
-    const stateSelect   = document.getElementById('provincia');
-    const citySelect    = document.getElementById('ciudad');
+async function initLocationSelects() {
+    // Referencias a los elementos del DOM (IDs actualizados según tu HTML)
+    const countrySelect = document.getElementById('country-select') || document.getElementById('pais');
+    const stateSelect   = document.getElementById('state-select')   || document.getElementById('provincia');
+    const citySelect    = document.getElementById('city-select')    || document.getElementById('ciudad');
+    const zipInput      = document.querySelector('input[name="postalCode"]');
 
     if (!countrySelect || !stateSelect || !citySelect) return;
 
-    const apiBase = "https://countriesnow.space/api/v0.1/countries";
+    let locationData = [];
 
-    // 1. Cargar países vía API
-    fetch(apiBase)
-        .then(res => res.json())
-        .then(data => {
-            countrySelect.innerHTML = '<option value="">Seleccione País</option>';
-            data.data.forEach(country => {
-                const opt = document.createElement('option');
-                opt.value = country.country;
-                opt.textContent = country.country;
-                if (countrySelect.dataset.value === country.country) opt.selected = true;
-                countrySelect.appendChild(opt);
-            });
-            if (countrySelect.value) loadProvinces(countrySelect.value);
-        })
-        .catch(console.error);
+    // 1. Cargar el JSON local (Usa la ruta correcta a tu archivo)
+    try {
+        const response = await fetch('/json/countries.json'); 
+        const json = await response.json();
+        locationData = json.data; // Tu JSON tiene la propiedad "data"
 
-    // 2. Función para cargar provincias
-    const loadProvinces = async (country) => {
-        stateSelect.innerHTML = '<option value="">Cargando provincias...</option>';
-        stateSelect.disabled = true;
-        citySelect.innerHTML  = '<option value="">Seleccione provincia primero</option>';
-        citySelect.disabled   = true;
+        // Poblar Países inicialmente
+        countrySelect.innerHTML = '<option value="">Seleccione País</option>';
+        locationData.forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.country;
+            opt.textContent = item.country;
+            // Mantener selección si existe data-value (útil en edición de perfil)
+            if (countrySelect.dataset.value === item.country) opt.selected = true;
+            countrySelect.appendChild(opt);
+        });
 
-        if (!country) {
-            stateSelect.innerHTML = '<option value="">—</option>';
-            return;
-        }
+        // Si ya hay un país seleccionado por defecto, cargar sus datos
+        if (countrySelect.value) updateCities(countrySelect.value);
 
-        try {
-            const response = await fetch(`${apiBase}/states`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ country })
-            });
-            const resData = await response.json();
+    } catch (e) {
+        console.error("Error al cargar el archivo de países local:", e);
+    }
 
-            let states = resData.data?.states?.map(s => s.name) || [];
-
-            // 🔥 Patch España: Ceuta y Melilla
-            if (country === 'Spain') {
-                const spainStates = [
-                    "Andalucía","Madrid","Cataluña","Valencia","Galicia",
-                    "Castilla y León","País Vasco","Canarias","Baleares",
-                    "Murcia","Castilla-La Mancha","Aragón","Extremadura",
-                    "Navarra","La Rioja","Cantabria","Asturias","Ceuta","Melilla"
-                ];
-                states = spainStates;
-            }
-
-            stateSelect.innerHTML = '<option value="">Seleccione Provincia/Estado</option>';
-            states.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s;
-                opt.textContent = s;
-                if (stateSelect.dataset.value === s) opt.selected = true;
-                stateSelect.appendChild(opt);
-            });
-            stateSelect.disabled = false;
-
-            if (stateSelect.dataset.value) loadCities(country, stateSelect.dataset.value);
-
-        } catch (e) {
-            console.error("Error cargando provincias:", e);
-            stateSelect.innerHTML = '<option value="">Error al cargar</option>';
-        }
-    };
-
-    // 3. Función para cargar ciudades vía API, parche Ceuta/Melilla
-    const loadCities = async (country, state) => {
+    // 2. Función para manejar el cambio de País
+    // Nota: Como tu JSON actual no tiene "provincias", cargamos ciudades directamente
+    function updateCities(countryName) {
         citySelect.innerHTML = '<option value="">Cargando ciudades...</option>';
         citySelect.disabled = true;
 
-        try {
-            let cities = [];
+        const countryMatch = locationData.find(c => c.country === countryName);
 
-            // Patch para Ceuta y Melilla (la API no devuelve ciudades)
-            if (country === 'Spain' && (state === 'Ceuta' || state === 'Melilla')) {
-                cities = [state]; // ciudad = nombre de la provincia
-            } else {
-                const response = await fetch(`${apiBase}/state/cities`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ country, state })
-                });
-                const resData = await response.json();
-                cities = resData.data || [];
-            }
-
-            if (!cities.length) {
-                citySelect.innerHTML = '<option value="">No disponible</option>';
-                return;
-            }
-
+        if (countryMatch && countryMatch.cities) {
             citySelect.innerHTML = '<option value="">Seleccione Ciudad</option>';
-            cities.forEach(c => {
+            countryMatch.cities.forEach(cityName => {
                 const opt = document.createElement('option');
-                opt.value = c;
-                opt.textContent = c;
-                if (citySelect.dataset.value === c) opt.selected = true;
+                opt.value = cityName;
+                opt.textContent = cityName;
+                if (citySelect.dataset.value === cityName) opt.selected = true;
                 citySelect.appendChild(opt);
             });
             citySelect.disabled = false;
 
-        } catch (e) {
-            console.error("Error cargando ciudades:", e);
-            citySelect.innerHTML = '<option value="">Error al cargar</option>';
+            // Parche visual para Provincia: Como no hay en el JSON, ponemos el país o "N/A"
+            stateSelect.innerHTML = `<option value="${countryName}">${countryName}</option>`;
+            stateSelect.disabled = false;
+        } else {
+            citySelect.innerHTML = '<option value="">Sin ciudades</option>';
+            citySelect.disabled = true;
         }
-    };
+    }
 
-    // 4. Event listeners
+    // --- Listeners de Eventos ---
+
     countrySelect.addEventListener('change', function() {
+        // Resetear selects dependientes y dataset
         stateSelect.dataset.value = '';
         citySelect.dataset.value = '';
-        loadProvinces(this.value);
+        if (zipInput) zipInput.value = ''; 
+        
+        updateCities(this.value);
     });
 
-    stateSelect.addEventListener('change', function() {
-        citySelect.dataset.value = '';
-        loadCities(countrySelect.value, this.value);
+    // Listener para el Código Postal
+    citySelect.addEventListener('change', function() {
+        // Si en el futuro tu JSON tiene CPs (ej: {name: "Madrid", zip: "28001"}),
+        // aquí podrías auto-rellenarlo. Por ahora lo dejamos para entrada manual.
+        if (zipInput) {
+            zipInput.placeholder = "Escribe el código postal";
+        }
     });
 }
 
-// Alertas de éxito o error
+// Función de Alertas (SweetAlert)
 function alertMessages() {
     const urlParams = new URLSearchParams(window.location.search);
+    
     if (urlParams.has('success')) {
         Swal.fire({
             icon: 'success',
-            title: '¡Actualizado!',
-            text: 'Los detalles de tu cuenta se han guardado correctamente.',
+            title: '¡Completado!',
+            text: 'La operación se ha realizado con éxito.',
             confirmButtonColor: '#18507F',
             timer: 3000
         });
         window.history.replaceState({}, document.title, window.location.pathname);
     }
+
     if (urlParams.has('error')) {
-        let mensaje = 'Hubo un problema al procesar la solicitud.';
-        const errorType = urlParams.get('error');
-        if (errorType === 'fields') mensaje = 'Por favor, rellena los campos obligatorios.';
-        if (errorType === 'db') mensaje = 'Error de base de datos. Revisa los nombres de las columnas.';
+        let msg = 'Hubo un error al procesar la solicitud.';
+        const type = urlParams.get('error');
+        if (type === 'fields') msg = 'Por favor, rellena todos los campos obligatorios.';
+        if (type === 'db') msg = 'Error de conexión con la base de datos.';
+
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: mensaje,
+            text: msg,
             confirmButtonColor: '#18507F'
         });
         window.history.replaceState({}, document.title, window.location.pathname);
