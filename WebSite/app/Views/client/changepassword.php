@@ -45,8 +45,9 @@
                     <div class="sidebar-list">
                         <a href="/client/accdetails" class="sidebar-item">Detalles de la cuenta</a>
                         <a href="/client/changepassword" class="sidebar-item active">Cambiar Contraseña</a>
-                        <?php if($usuario['rol'] === 'admin' || $usuario['rol'] === 'soporte'): ?>
-                            <a href="/support/users" class="sidebar-item">Gestión de usuarios</a>
+                        <?php if($usuario['rol'] === 'admin' || $usuario['rol'] === "soporte"): ?>
+                            <a href="#" class="sidebar-item">Gestión de usuarios</a>
+                            <a href="#" class="sidebar-item">Contactos</a> 
                         <?php endif; ?>
                         <a href="#" class="sidebar-item">Seguridad de la cuenta</a>
                     </div>

@@ -21,13 +21,15 @@
                                     <label>Apellido</label>
                                     <input type="text" name="apellidos" class="form-control" value="<?= htmlspecialchars($usuario['apellidos']) ?>" required>
                                 </div>
-                                <div class="form-group-custom">
-                                    <label>Nombre de Compañía</label>
-                                    <input type="text" name="empresa" class="form-control" value="<?= htmlspecialchars($usuario['empresa'] ?? '') ?>">
-                                </div>
+                                <?php if($usuario['empresa'] != ''): ?> 
+                                    <div class="form-group-custom">
+                                        <label>Empresa</label>
+                                        <input type="text" name="empresa" class="form-control" placeholder="Nombre de la empresa" value="<?= htmlspecialchars($usuario['empresa']) ?>">
+                                    </div>
+                                <?php endif; ?>
                                 <div class="form-group-custom">
                                     <label>Dirección de E-Mail</label>
-                                    <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($usuario['email']) ?>" required>
+                                    <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($usuario['email']) ?>" required readonly>
                                 </div>
                                 <div class="form-group-custom">
                                     <label>Número de Teléfono</label>
@@ -54,17 +56,14 @@
                                 </div>
                                 <div class="form-group-custom">
                                     <label>Ciudad</label>
-                                    <input type="text" name="ciudad" class="form-control" value="<?= htmlspecialchars($usuario['ciudad'] ?? '') ?>">
+                                    <select name="ciudad" id="ciudad" class="form-control" data-value="<?= htmlspecialchars($usuario['ciudad'] ?? '') ?>">
+                                        <option value="">—</option>
+                                    </select>
                                 </div>
                                 <div class="form-group-custom">
                                     <label>Provincia/Región</label>
-                                    <select name="provincia" class="form-control">
+                                    <select name="provincia" id="provincia" class="form-control" data-value="<?= htmlspecialchars($usuario['provincia'] ?? '') ?>">
                                         <option value="">—</option>
-                                        <?php 
-                                        $provincias = ["ARABA/ÁLAVA", "ALBACETE", "ALICANTE", "ALMERIA", "AVILA", "BADAJOZ", "ILLES BALEARS", "BARCELONA", "BURGOS", "CACERES", "CADIZ", "CASTELLON", "CIUDAD REAL", "CORDOBA", "CORUÑA, A", "CUENCA", "GIRONA", "GRANADA", "GUADALAJARA", "GIPUZKOA", "HUELVA", "HUESCA", "JAEN", "LEON", "LLEIDA", "RIOJA, LA", "LUGO", "MADRID", "MALAGA", "MURCIA", "NAVARRA", "OURENSE", "ASTURIAS", "PALENCIA", "PALMAS, LAS", "PONTEVEDRA", "SALAMANCA", "SANTA CRUZ DE TENERIFE", "CANTABRIA", "SEGOVIA", "SEVILLA", "SORIA", "TARRAGONA", "TERUEL", "TOLEDO", "VALENCIA", "VALLADOLID", "BIZKAIA", "ZAMORA", "ZARAGOZA", "CEUTA", "MELILLA"];
-                                        foreach($provincias as $prov): ?>
-                                            <option value="<?= $prov ?>" <?= (isset($usuario['provincia']) && $usuario['provincia'] == $prov) ? 'selected' : '' ?>><?= $prov ?></option>
-                                        <?php endforeach; ?>
                                     </select>
                                 </div>
                                 <div class="form-group-custom">
@@ -73,12 +72,8 @@
                                 </div>
                                 <div class="form-group-custom">
                                     <label>País</label>
-                                    <select name="pais" class="form-control">
-                                        <?php 
-                                        $paises = ["Afghanistan", "Aland Islands", "Albania", "Algeria", "American Samoa", "Andorra", "Angola", "Anguilla", "Antarctica", "Antigua And Barbuda", "Argentina", "Armenia", "Aruba", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia And Herzegovina", "Botswana", "Brazil", "British Indian Ocean Territory", "Brunei Darussalam", "Bulgaria", "Burkina Faso", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Cayman Islands", "Central African Republic", "Chad", "Chile", "China", "Christmas Island", "Cocos (Keeling) Islands", "Colombia", "Comoros", "Congo", "Congo, Democratic Republic", "Cook Islands", "Costa Rica", "Cote D'Ivoire", "Croatia", "Cuba", "Curacao", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Falkland Islands (Malvinas)", "Faroe Islands", "Fiji", "Finland", "France", "French Guiana", "French Polynesia", "French Southern Territories", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Gibraltar", "Greece", "Greenland", "Grenada", "Guadeloupe", "Guam", "Guatemala", "Guernsey", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Heard Island & Mcdonald Islands", "Holy See (Vatican City State)", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran, Islamic Republic Of", "Iraq", "Ireland", "Isle Of Man", "Israel", "Italy", "Jamaica", "Japan", "Jersey", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea", "Kuwait", "Kyrgyzstan", "Lao People's Democratic Republic", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libyan Arab Jamahiriya", "Liechtenstein", "Lithuania", "Luxembourg", "Macao", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Martinique", "Mauritania", "Mauritius", "Mayotte", "Mexico", "Micronesia, Federated States Of", "Moldova", "Monaco", "Mongolia", "Montenegro", "Montserrat", "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "Netherlands Antilles", "New Caledonia", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Niue", "Norfolk Island", "Northern Mariana Islands", "Norway", "Oman", "Pakistan", "Palau", "Palestine, State of", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Pitcairn", "Poland", "Portugal", "Puerto Rico", "Qatar", "Reunion", "Romania", "Russian Federation", "Rwanda", "Saint Barthelemy", "Saint Helena", "Saint Kitts And Nevis", "Saint Lucia", "Saint Martin", "Saint Pierre And Miquelon", "Saint Vincent And Grenadines", "Samoa", "San Marino", "Sao Tome And Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Georgia And Sandwich Isl.", "España", "Sri Lanka", "Sudan", "Suriname", "Svalbard And Jan Mayen", "Swaziland", "Sweden", "Switzerland", "Syrian Arab Republic", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tokelau", "Tonga", "Trinidad And Tobago", "Tunisia", "Turkey", "Turkmenistan", "Turks And Caicos Islands", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "United States Outlying Islands", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Viet Nam", "Virgin Islands, British", "Virgin Islands, U.S.", "Wallis And Futuna", "Western Sahara", "Yemen", "Zambia", "Zimbabwe"];
-                                        foreach($paises as $p): ?>
-                                            <option value="<?= $p ?>" <?= (isset($usuario['pais']) && $usuario['pais'] == $p) ? 'selected' : (($p == 'España' && empty($usuario['pais'])) ? 'selected' : '') ?>><?= $p ?></option>
-                                        <?php endforeach; ?>
+                                    <select name="pais" id="pais" class="form-control" data-value="<?= htmlspecialchars($usuario['pais'] ?? 'España') ?>">
+                                        <option value="">—</option>
                                     </select>
                                 </div>
                                 <div class="form-group-custom">
