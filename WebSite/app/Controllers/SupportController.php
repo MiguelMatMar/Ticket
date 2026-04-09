@@ -347,4 +347,24 @@ class SupportController extends Controller {
 
         $this->redirect('/support/users');
     }
+
+    public function update_user_role() {
+        // 1. Capturamos los datos de la URL (?userId=X&role=Y)
+        $userId = $_GET['userId'] ?? null;
+        $role   = $_GET['role'] ?? null;
+
+        if ($userId && $role) {
+            // 2. Llamamos al modelo (asegúrate de que $this->clientModel esté inicializado en el __construct)
+            $success = $this->clientModel->updateUserRole($userId, $role);
+
+            if ($success) {
+                header('Location: /support/users?success=role');
+            } else {
+                header('Location: /support/users?error=db');
+            }
+        } else {
+            header('Location: /support/users?error=missing');
+        }
+        exit;
+    }
 }

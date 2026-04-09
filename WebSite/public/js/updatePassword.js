@@ -9,20 +9,31 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 function handleServerResponse() {
     const params = new URLSearchParams(window.location.search);
+    const successKey = params.get('success');
 
-    if (params.get('success') === '1') {
-        Swal.fire({
-            icon: 'success',
-            title: '¡Actualizado!',
-            text: 'La contraseña se ha cambiado correctamente.',
-            confirmButtonColor: '#18507F',
-            timer: 3000,
-            timerProgressBar: true
-        });
+    if (successKey) {
+        let title = '¡Actualizado!';
+        let message = '';
 
-        // Limpiar el parámetro de la URL sin recargar
-        window.history.replaceState({}, document.title, window.location.pathname);
-        return;
+        // Definimos el mensaje según el tipo de éxito
+        if (successKey === '1') {
+            message = 'La contraseña se ha cambiado correctamente.';
+        } else if (successKey === 'role') {
+            message = 'El rol del usuario ha sido actualizado con éxito.';
+        }
+
+        if (message !== '') {
+            Swal.fire({
+                icon: 'success',
+                title: title,
+                text: message,
+                confirmButtonColor: '#18507F',
+                timer: 3000,
+                timerProgressBar: true
+            });
+            window.history.replaceState({}, document.title, window.location.pathname);
+            return;
+        }
     }
 
     const errorMessages = {

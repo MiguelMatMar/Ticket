@@ -52,9 +52,11 @@
                                 <td class="hide-mobile"><?= htmlspecialchars($u['empresa'] ?? '-') ?></td>
                                 <td class="hide-mobile"><?= htmlspecialchars($u['telefono'] ?? '-') ?></td>
                                 <td>
-                                    <span class="role-badge role-<?= $u['rol'] ?>">
-                                        <?= ucfirst($u['rol']) ?>
-                                    </span>
+                                    <select class="ticket-select-filter update-role-select" data-user-id="<?= $u['id'] ?>">
+                                        <option value="cliente" <?= $u['rol'] === 'cliente' ? 'selected' : '' ?>>Cliente</option>
+                                        <option value="soporte" <?= $u['rol'] === 'soporte' ? 'selected' : '' ?>>Soporte</option>
+                                        <option value="admin" <?= $u['rol'] === 'admin' ? 'selected' : '' ?>>Admin</option>
+                                    </select>
                                 </td>
                                 <td>
                                     <span class="status-badge <?= $u['status'] ? 'status-open' : 'status-closed' ?>">
@@ -173,4 +175,31 @@ function swConfirm(e, el, title, text, icon, confirmText) {
     });
     return false;
 }
+// Detectar cambio en el select de rol
+document.querySelectorAll('.update-role-select').forEach(select => {
+    select.addEventListener('change', function() {
+        const userId = this.getAttribute('data-user-id');
+        const newRole = this.value;
+        const userName = this.closest('tr').querySelector('td:nth-child(2)').innerText;
+
+        Swal.fire({
+            title: '¿Cambiar rol?',
+            text: `¿Deseas cambiar el rol de ${userName} a ${newRole}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, cambiar',
+            cancelButtonText: 'Cancelar',
+            confirmButtonColor: '#18507F',
+            reverseButtons: true
+        }).then(result => {
+            if (result.isConfirmed) {
+                // Redirige al controlador pasándole el ID y el nuevo Rol
+                window.location.href = `/support/update_user_role?userId=${userId}&role=${newRole}`;
+            } else {
+                // Si cancela, revertimos el select al valor anterior (opcional recargando)
+                location.reload(); 
+            }
+        });
+    });
+});
 </script>

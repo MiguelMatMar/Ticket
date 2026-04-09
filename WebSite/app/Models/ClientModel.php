@@ -108,4 +108,17 @@ class ClientModel {
             $userId
         ]);
     }
+    /**
+     * Actualiza únicamente el rol de un usuario específico.
+     */
+    public function updateUserRole($userId, $role) {
+        // Validamos que el rol sea uno de los permitidos
+        $allowedRoles = ['cliente', 'soporte', 'admin'];
+        if (!in_array($role, $allowedRoles)) {
+            return false;
+        }
+
+        $stmt = $this->db->prepare("UPDATE users SET rol = ? WHERE id = ?");
+        return $stmt->execute([$role, $userId]);
+    }
 }
