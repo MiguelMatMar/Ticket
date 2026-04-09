@@ -83,7 +83,7 @@ class ClientController extends Controller {
             exit;
         }
 
-        $passwordRegex = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/";
+        $passwordRegex = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W])[A-Za-z\d\W]{8,}$/";
         if (!preg_match($passwordRegex, $newPassword)) {
             $this->redirect('/client/changepassword?error=weak');
             exit;
