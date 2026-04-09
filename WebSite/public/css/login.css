@@ -156,6 +156,81 @@ button:hover {
     font-weight: bold;
 }
 
+/* --- PowerMeter & Password Requirements --- */
+
+.password-strength-wrapper {
+    margin-top: 10px;
+}
+
+.strength-bar {
+    background: #e0e0e0;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+#strength-meter {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+#strength-text {
+    font-size: 12px;
+    color: #666;
+}
+
+#strength-text span {
+    font-weight: bold;
+}
+
+.password-requirements {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+    font-size: 12px;
+}
+
+.password-requirements li {
+    color: #888;
+    margin-bottom: 4px;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.password-requirements li i {
+    font-size: 7px;
+}
+
+/* Estados de Validación */
+.password-requirements li.valid {
+    color: #2e7d32;
+}
+
+/* Colores Dinámicos del Medidor */
+.strength-weak { 
+    background-color: #f44336; 
+    width: 25% !important; 
+}
+
+.strength-medium { 
+    background-color: #ffa000; 
+    width: 50% !important; 
+}
+
+.strength-good { 
+    background-color: #2196f3; 
+    width: 75% !important; 
+}
+
+.strength-strong { 
+    background-color: #4caf50; 
+    width: 100% !important; 
+}
+
 @media (max-width: 800px) {
     .form-cols-wrapper {
         flex-direction: column;

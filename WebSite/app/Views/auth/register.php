@@ -86,6 +86,18 @@
                         <input type="password" id="password" name="password" required placeholder="********">
                         <i class="fa-solid fa-eye" id="togglePassword"></i>
                     </div>
+
+                    <div class="password-strength-wrapper">
+                        <div class="strength-bar"><div id="strength-meter"></div></div>
+                        <p id="strength-text">Seguridad: <span>Muy débil</span></p>
+                    </div>
+
+                    <ul class="password-requirements">
+                        <li id="req-length" class="invalid"><i class="fas fa-circle"></i> Mínimo 8 caracteres</li>
+                        <li id="req-upper" class="invalid"><i class="fas fa-circle"></i> Una mayúscula</li>
+                        <li id="req-number" class="invalid"><i class="fas fa-circle"></i> Un número</li>
+                        <li id="req-special" class="invalid"><i class="fas fa-circle"></i> Un carácter especial (@$!%*?&)</li>
+                    </ul>
                     
                     <label style="margin-top:15px; display:block;">Confirmar Contraseña</label>
                     <div class="input-wrapper">
