@@ -173,7 +173,7 @@ function initFormValidation() {
         }
 
         // Debe cumplir los requisitos de seguridad
-        const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W).{8,}$/;
+        const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)[A-Za-z\d\W]{8,}$/;
         if (!passRegex.test(newPassword)) {
             e.preventDefault();
             Swal.fire({

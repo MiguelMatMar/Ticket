@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            const passRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*\W)[A-Za-z\d\W]{8,}$/;
             if (!passRegex.test(pass)) {
                 e.preventDefault();
                 Swal.fire({
