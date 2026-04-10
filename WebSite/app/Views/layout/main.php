@@ -42,9 +42,11 @@
 
     <script src="/js/nav.js"></script>
     <script src="/js/leftbar.js"></script>
-    <script src="/js/ticket_list.js"></script> <script src="/js/ticket.js"></script>
+    <script src="/js/ticket_list.js"></script> 
+    <script src="/js/ticket.js"></script>
     <script src="/js/open_ticket.js"></script>
     <script src="/js/user_dashboard.js"></script>
     <script src="/js/updatePassword.js"></script>
+
 </body>
 </html>

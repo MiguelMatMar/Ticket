@@ -36,7 +36,14 @@ class ClientModel {
      * ordenados cronológicamente de forma descendente.
      */
     public function getRecentTickets($userId) {
-        $stmt = $this->db->prepare("SELECT id, asunto, status, fecha FROM tickets WHERE user_id = ? AND (status = 'open' OR status = 'answered' OR status = 'customer-reply') ORDER BY fecha DESC LIMIT 15");
+        $stmt = $this->db->prepare("
+            SELECT id, asunto, status, fecha 
+            FROM tickets 
+            WHERE user_id = ? 
+              AND (status = 'open' OR status = 'answered' OR status = 'customer-reply') 
+            ORDER BY fecha DESC 
+            LIMIT 15
+        ");
         $stmt->execute([$userId]);
         return $stmt->fetchAll();
     }
@@ -71,23 +78,28 @@ class ClientModel {
     }
 
     /**
-     * Actualiza los datos de perfil del usuario.
+     * Actualiza los datos de perfil del usuario, incluyendo
+     * los campos de contacto y tipo de cuenta.
      */
     public function updateUserData($userId, $data) {
         $sql = "UPDATE users SET 
-                nombre = ?, 
-                apellidos = ?, 
-                email = ?, 
-                empresa = ?, 
-                telefono = ?, 
-                nif = ?, 
-                direccion1 = ?, 
-                direccion2 = ?, 
-                ciudad = ?, 
-                provincia = ?, 
-                codigo_postal = ?, 
-                pais = ?, 
-                idioma = ? 
+                    nombre          = ?,
+                    apellidos       = ?,
+                    email           = ?,
+                    tipo            = ?,
+                    empresa         = ?,
+                    nif             = ?,
+                    telefono        = ?,
+                    telefono_movil  = ?,
+                    whatsapp        = ?,
+                    email_contacto  = ?,
+                    direccion1      = ?,
+                    direccion2      = ?,
+                    ciudad          = ?,
+                    provincia       = ?,
+                    codigo_postal   = ?,
+                    pais            = ?,
+                    idioma          = ?
                 WHERE id = ?";
 
         $stmt = $this->db->prepare($sql);
@@ -95,24 +107,28 @@ class ClientModel {
             $data['nombre'],
             $data['apellidos'],
             $data['email'],
-            $data['empresa'],
-            $data['telefono'],
+            $data['tipo']           ?? 'persona',
+            $data['empresa']        ?? '',
             $data['nif'],
+            $data['telefono'],
+            $data['telefono_movil'] ?? '',
+            $data['whatsapp']       ?? '',
+            $data['email_contacto'] ?? '',
             $data['direccion1'],
-            $data['direccion2'],
+            $data['direccion2']     ?? '',
             $data['ciudad'],
             $data['provincia'],
             $data['codigo_postal'],
             $data['pais'],
-            $data['idioma'],
+            $data['idioma']         ?? 'es',
             $userId
         ]);
     }
+
     /**
      * Actualiza únicamente el rol de un usuario específico.
      */
     public function updateUserRole($userId, $role) {
-        // Validamos que el rol sea uno de los permitidos
         $allowedRoles = ['cliente', 'soporte', 'admin'];
         if (!in_array($role, $allowedRoles)) {
             return false;

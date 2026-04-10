@@ -84,52 +84,84 @@ class AuthController extends Controller {
     public function store() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') $this->redirect('/auth/register');
 
-        $name            = trim(htmlspecialchars($_POST['name'] ?? ''));
-        $surnames        = trim(htmlspecialchars($_POST['surnames'] ?? ''));
-        $company         = trim(htmlspecialchars($_POST['company'] ?? ''));
+        // --- Datos personales ---
+        $name            = trim(htmlspecialchars($_POST['name']            ?? ''));
+        $surnames        = trim(htmlspecialchars($_POST['surnames']        ?? ''));
+        $tipo            = in_array($_POST['type'] ?? '', ['persona', 'empresa']) ? $_POST['type'] : 'persona';
+        $company         = $tipo === 'empresa' ? trim(htmlspecialchars($_POST['company'] ?? '')) : '';
         $email           = trim(filter_var($_POST['email'] ?? '', FILTER_SANITIZE_EMAIL));
         $telephoneNumber = trim(htmlspecialchars($_POST['telephoneNumber'] ?? ''));
-        $nif             = trim(htmlspecialchars($_POST['nif'] ?? ''));
-        $address1        = trim(htmlspecialchars($_POST['address1'] ?? ''));
-        $address2        = trim(htmlspecialchars($_POST['address2'] ?? ''));
-        $city            = trim(htmlspecialchars($_POST['city'] ?? ''));
-        $state           = trim(htmlspecialchars($_POST['state'] ?? ''));
-        $postcode        = trim(htmlspecialchars($_POST['postalCode'] ?? ''));
-        $country         = trim(htmlspecialchars($_POST['country'] ?? ''));
-        $password        = $_POST['password'] ?? '';
+        $nif             = trim(htmlspecialchars($_POST['nif']             ?? ''));
+
+        // --- Dirección ---
+        $address1        = trim(htmlspecialchars($_POST['address1']        ?? ''));
+        $address2        = trim(htmlspecialchars($_POST['address2']        ?? ''));
+        $city            = trim(htmlspecialchars($_POST['city']            ?? ''));
+        $state           = trim(htmlspecialchars($_POST['state']           ?? ''));
+        $postcode        = trim(htmlspecialchars($_POST['postalCode']      ?? ''));
+        $country         = trim(htmlspecialchars($_POST['country']         ?? ''));
+
+        // --- Contacto ---
+        $mobilePhone     = trim(htmlspecialchars($_POST['mobilePhone']     ?? ''));
+        $whatsapp        = trim(htmlspecialchars($_POST['whatsapp']        ?? ''));
+        $contactEmail    = trim(filter_var($_POST['contactEmail'] ?? '', FILTER_SANITIZE_EMAIL));
+
+        // --- Contraseña ---
+        $password        = $_POST['password']        ?? '';
         $confirmPassword = $_POST['confirmPassword'] ?? '';
 
+        // --- Validaciones obligatorias ---
         if (empty($name) || empty($surnames) || empty($email) || empty($nif) || empty($address1) || empty($city)) {
             $this->flash('error', 'Por favor, rellena todos los campos obligatorios');
-            $this->redirect('/auth/register');
+            $this->redirect('/auth/register?type=' . $tipo);
+            return;
+        }
+
+        if (empty($mobilePhone) || empty($whatsapp) || empty($contactEmail)) {
+            $this->flash('error', 'Por favor, rellena todos los campos de contacto');
+            $this->redirect('/auth/register?type=' . $tipo);
+            return;
+        }
+
+        if ($tipo === 'empresa' && empty($company)) {
+            $this->flash('error', 'El nombre de la empresa es obligatorio');
+            $this->redirect('/auth/register?type=empresa');
             return;
         }
 
         if ($password !== $confirmPassword) {
             $this->flash('error', 'Las contraseñas no coinciden');
-            $this->redirect('/auth/register');
+            $this->redirect('/auth/register?type=' . $tipo);
             return;
         }
 
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $this->flash('error', 'El formato de email no es válido');
-            $this->redirect('/auth/register');
+            $this->redirect('/auth/register?type=' . $tipo);
+            return;
+        }
+
+        if (!filter_var($contactEmail, FILTER_VALIDATE_EMAIL)) {
+            $this->flash('error', 'El formato del email de contacto no es válido');
+            $this->redirect('/auth/register?type=' . $tipo);
             return;
         }
 
         $passwordRegex = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W])[A-Za-z\d\W]{8,}$/";
         if (!preg_match($passwordRegex, $password)) {
             $this->flash('error', 'La contraseña debe ser más segura (mín. 8 caracteres, mayúscula, minúscula, número y especial)');
-            $this->redirect('/auth/register');
+            $this->redirect('/auth/register?type=' . $tipo);
             return;
         }
 
-        $db   = Database::getInstance()->getConnection();
+        $db = Database::getInstance()->getConnection();
+
+        // Comprobar email duplicado
         $stmt = $db->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->execute([$email]);
         if ($stmt->fetch()) {
             $this->flash('error', 'Este email ya está registrado');
-            $this->redirect('/auth/register');
+            $this->redirect('/auth/register?type=' . $tipo);
             return;
         }
 
@@ -138,16 +170,27 @@ class AuthController extends Controller {
         $stmt->execute([$email]);
         if ($stmt->fetch()) {
             $this->flash('error', 'Este email no puede ser utilizado para registrarse');
-            $this->redirect('/auth/register');
+            $this->redirect('/auth/register?type=' . $tipo);
             return;
         }
 
-        $sql  = "INSERT INTO users (nombre, apellidos, empresa, email, telefono, nif, direccion1, direccion2, ciudad, provincia, codigo_postal, pais, password, ip_registro) 
-                VALUES (:name, :surnames, :company, :email, :telephoneNumber, :nif, :address1, :address2, :city, :state, :postcode, :country, :password, :ip)";
+        $sql = "INSERT INTO users (
+                    nombre, apellidos, tipo, empresa, email, telefono, nif,
+                    direccion1, direccion2, ciudad, provincia, codigo_postal, pais,
+                    telefono_movil, whatsapp, email_contacto,
+                    password, ip_registro
+                ) VALUES (
+                    :name, :surnames, :tipo, :company, :email, :telephoneNumber, :nif,
+                    :address1, :address2, :city, :state, :postcode, :country,
+                    :mobilePhone, :whatsapp, :contactEmail,
+                    :password, :ip
+                )";
+
         $stmt = $db->prepare($sql);
         $stmt->execute([
             'name'            => $name,
             'surnames'        => $surnames,
+            'tipo'            => $tipo,
             'company'         => $company,
             'email'           => $email,
             'telephoneNumber' => $telephoneNumber,
@@ -158,11 +201,14 @@ class AuthController extends Controller {
             'state'           => $state,
             'postcode'        => $postcode,
             'country'         => $country,
+            'mobilePhone'     => $mobilePhone,
+            'whatsapp'        => $whatsapp,
+            'contactEmail'    => $contactEmail,
             'password'        => password_hash($password, PASSWORD_DEFAULT),
-            'ip'              => $_SERVER['REMOTE_ADDR']
+            'ip'              => $_SERVER['REMOTE_ADDR'],
         ]);
 
-        $this->flash('success', 'Bienvenido de nuevo');
+        $this->flash('success', 'Registro completado');
         $this->redirect('/auth/index');
     }
 

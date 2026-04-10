@@ -15,7 +15,22 @@
             <p>Crea tu cuenta en DonDigital</p>
         </div>
 
+        <!-- Toggle persona / empresa -->
+        <div class="type-toggle-wrapper">
+            <div class="type-toggle">
+                <a href="/auth/register?type=persona" id="btn-persona">
+                    <i class="fa-solid fa-user"></i> Persona Física
+                </a>
+                <a href="/auth/register?type=empresa" id="btn-empresa">
+                    <i class="fa-solid fa-building"></i> Empresa
+                </a>
+            </div>
+        </div>
+
         <form action="/auth/store" method="POST">
+            <!-- Campo oculto para enviar el tipo al backend -->
+            <input type="hidden" name="type" id="input-type" value="">
+
             <div class="form-cols-wrapper">
                 <div class="form-col">
                     <h3 class="section-title">Detalles del Cliente</h3>
@@ -27,10 +42,13 @@
                         <label>Apellidos</label>
                         <input type="text" name="surnames" required placeholder="Tus Apellidos">
                     </div>
-                    <div class="form-group" id="group-company">
+
+                    <!-- Solo visible si type=empresa — auth.js lo gestiona -->
+                    <div class="form-group" id="group-company" style="display:none;">
                         <label>Empresa</label>
                         <input type="text" name="company" placeholder="Nombre de la empresa">
                     </div>
+
                     <div class="form-group">
                         <label>Email</label>
                         <input type="email" name="email" required placeholder="tu@email.com">
@@ -40,8 +58,9 @@
                         <input type="tel" name="telephoneNumber" required placeholder="Número de Teléfono">
                     </div>
                     <div class="form-group">
-                        <label>Nº NIF/CIF/NIE</label>
-                        <input type="text" name="nif" required placeholder="DNI / NIF">
+                        <!-- Etiqueta y placeholder cambian según tipo — auth.js lo gestiona -->
+                        <label id="label-nif">DNI</label>
+                        <input type="text" name="nif" id="input-nif" required placeholder="DNI">
                     </div>
                 </div>
 
@@ -57,25 +76,77 @@
                     </div>
                     <div class="form-group">
                         <label>País</label>
-                        <select name="country" id="country-select" class="custom-select">
+                        <select id="country-code-select" class="custom-select" required>
                             <option value="">Seleccione País</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Provincia / Estado</label>
-                        <select name="state" id="state-select" class="custom-select" required disabled>
-                            <option value="">Seleccione País primero</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Ciudad</label>
-                        <select name="city" id="city-select" class="custom-select" required disabled>
-                            <option value="">Seleccione Provincia primero</option>
+                            <option value="es" data-name="España">🇪🇸 España</option>
+                            <option value="" disabled>──────────────</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Código Postal</label>
-                        <input type="text" name="postalCode" required placeholder="Código Postal">
+                        <div class="postal-input-wrapper">
+                            <input type="text" name="postalCode" id="postal-input" required
+                                   placeholder="Selecciona país primero"
+                                   maxlength="10"
+                                   autocomplete="postal-code"
+                                   disabled>
+                            <span class="postal-spinner" id="postal-spinner">
+                                <i class="fa-solid fa-circle-notch fa-spin"></i>
+                            </span>
+                            <span class="postal-ok" id="postal-ok">
+                                <i class="fa-solid fa-circle-check"></i>
+                            </span>
+                            <span class="postal-error" id="postal-error">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            </span>
+                        </div>
+                        <p class="postal-hint" id="postal-hint">Primero selecciona el país.</p>
+                    </div>
+                    <!-- País como texto autocompletado (se envía al backend) -->
+                    <input type="hidden" name="country" id="country-input">
+                    <div class="form-group">
+                        <label>Provincia / Estado</label>
+                        <input type="text" name="state" id="state-input" required
+                               readonly placeholder="Se autocompleta" class="autofilled">
+                    </div>
+                    <div class="form-group">
+                        <label>Ciudad</label>
+                        <input type="text" name="city" id="city-input" required
+                               readonly placeholder="Se autocompleta" class="autofilled">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección de Contacto -->
+            <div class="contact-section">
+                <h3 class="section-title">Información de Contacto</h3>
+                <div class="form-cols-wrapper">
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Teléfono Móvil</label>
+                            <input type="tel" name="mobilePhone" required placeholder="Teléfono móvil">
+                        </div>
+                        <div class="form-group">
+                            <label>WhatsApp</label>
+                            <div class="input-with-check">
+                                <input type="tel" name="whatsapp" id="whatsapp-input" required placeholder="Número de WhatsApp">
+                                <label class="same-as-mobile">
+                                    <input type="checkbox" id="whatsapp-same"> Igual al móvil
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-col">
+                        <div class="form-group">
+                            <label>Email de Contacto</label>
+                            <input type="email" name="contactEmail" required placeholder="contacto@email.com">
+                        </div>
+                        <div class="form-group">
+                            <p class="contact-note">
+                                <i class="fa-solid fa-circle-info"></i>
+                                El email principal (arriba) se usa para acceder a tu cuenta. El email de contacto es el que usaremos para comunicarnos contigo.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -88,7 +159,7 @@
                         <input type="password" id="password" name="password" required placeholder="********">
                         <i class="fa-solid fa-eye" id="togglePassword"></i>
                     </div>
-                    
+
                     <div class="password-strength-wrapper">
                         <div class="strength-bar"><div id="strength-meter"></div></div>
                         <p id="strength-text">Seguridad: <span>Muy débil</span></p>
@@ -96,7 +167,7 @@
 
                     <ul class="password-requirements">
                         <li id="req-length" class="invalid"><i class="fas fa-circle"></i> Mínimo 8 caracteres</li>
-                        <li id="req-upper" class="invalid"><i class="fas fa-circle"></i> Una mayúscula</li>
+                        <li id="req-upper"  class="invalid"><i class="fas fa-circle"></i> Una mayúscula</li>
                         <li id="req-number" class="invalid"><i class="fas fa-circle"></i> Un número</li>
                         <li id="req-special" class="invalid"><i class="fas fa-circle"></i> Un carácter especial (@$!%*?&)</li>
                     </ul>
@@ -117,5 +188,6 @@
             </div>
         </form>
     </div>
+    <script src="/js/auth.js"></script>
 </body>
 </html>
