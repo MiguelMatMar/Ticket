@@ -22,10 +22,11 @@ class SupportController extends Controller {
     }
 
     public function faq() {
-        $userId = $_SESSION['user_id'];
+        $userId   = $_SESSION['user_id'];
+        $userRole = $_SESSION['user_role'];
         $data = [
             'usuario'       => $this->clientModel->getUserData($userId),
-            'tickets_lista' => $this->clientModel->getRecentTickets($userId),
+            'tickets_lista' => $this->clientModel->getRecentTickets($userId, $userRole),
             'title'         => "FAQ"
         ];
         extract($data);
@@ -42,7 +43,7 @@ class SupportController extends Controller {
 
         $data = [
             'usuario'       => $this->clientModel->getUserData($userId),
-            'tickets_lista' => $this->clientModel->getRecentTickets($userId),
+            'tickets_lista' => $this->clientModel->getRecentTickets($userId, $userRole),
             'title'         => "Abrir Ticket",
             'optionTicket'  => $optionTicket,
             // Lista de clientes solo para staff; vacía para clientes normales
