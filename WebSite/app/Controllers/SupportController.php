@@ -82,8 +82,8 @@ class SupportController extends Controller {
         }
 
         // ── Datos del formulario ──────────────────────────────────────────────
-        $asunto       = htmlspecialchars($_POST['affairUser']);
-        $mensaje      = htmlspecialchars($_POST['messageUser']);
+        $asunto  = trim($_POST['affairUser'] ?? '');
+        $mensaje = trim($_POST['messageUser'] ?? '');
         $departamento = $_POST['departmentUser'];
         $prioridad    = $_POST['priority'];
 

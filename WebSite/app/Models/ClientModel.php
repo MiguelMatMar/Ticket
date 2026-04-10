@@ -23,28 +23,43 @@ class ClientModel {
     }
 
     /**
-     * Devuelve el número de tickets abiertos del usuario para el dashboard.
+     * Devuelve estadísticas para el dashboard según el rol:
+     * - cliente: solo sus tickets no cerrados
+     * - admin / soporte: todos los tickets no cerrados
      */
-    public function getDashboardStats($userId) {
+    public function getDashboardStats($userId, $rol) {
         return [
-            'tickets_count' => $this->countTickets($userId)
+            'tickets_count' => $this->countTickets($userId, $rol)
         ];
     }
 
     /**
-     * Obtiene los últimos 15 tickets de soporte creados por el usuario que no estén finalizados,
-     * ordenados cronológicamente de forma descendente.
+     * Obtiene los últimos 5 tickets ordenados del más reciente al más antiguo.
+     * - cliente: solo sus propios tickets (cualquier estado)
+     * - admin / soporte: los 5 últimos de todos los usuarios, con nombre del creador
      */
-    public function getRecentTickets($userId) {
-        $stmt = $this->db->prepare("
-            SELECT id, asunto, status, fecha 
-            FROM tickets 
-            WHERE user_id = ? 
-              AND (status = 'open' OR status = 'answered' OR status = 'customer-reply') 
-            ORDER BY fecha DESC 
-            LIMIT 15
-        ");
-        $stmt->execute([$userId]);
+    public function getRecentTickets($userId, $rol) {
+        if ($rol === 'cliente') {
+            $stmt = $this->db->prepare("
+                SELECT id, asunto, status, fecha
+                FROM tickets
+                WHERE user_id = ?
+                ORDER BY fecha DESC
+                LIMIT 5
+            ");
+            $stmt->execute([$userId]);
+        } else {
+            $stmt = $this->db->prepare("
+                SELECT t.id, t.asunto, t.status, t.fecha,
+                       u.nombre, u.apellidos
+                FROM tickets t
+                JOIN users u ON u.id = t.user_id
+                ORDER BY t.fecha DESC
+                LIMIT 5
+            ");
+            $stmt->execute();
+        }
+
         return $stmt->fetchAll();
     }
 
@@ -68,12 +83,24 @@ class ClientModel {
     }
 
     /**
-     * Método auxiliar que cuenta cuántos tickets tiene el usuario
-     * que aún no han sido cerrados.
+     * Cuenta los tickets según el rol:
+     * - cliente: solo los suyos no cerrados
+     * - admin / soporte: todos los no cerrados
      */
-    private function countTickets($userId) {
-        $stmt = $this->db->prepare("SELECT COUNT(*) FROM tickets WHERE user_id = ? AND status != 'closed'");
-        $stmt->execute([$userId]);
+    private function countTickets($userId, $rol) {
+        if ($rol === 'cliente') {
+            $stmt = $this->db->prepare("
+                SELECT COUNT(*) FROM tickets
+                WHERE user_id = ? AND status != 'closed'
+            ");
+            $stmt->execute([$userId]);
+        } else {
+            $stmt = $this->db->prepare("
+                SELECT COUNT(*) FROM tickets
+                WHERE status != 'closed'
+            ");
+            $stmt->execute();
+        }
         return $stmt->fetchColumn();
     }
 

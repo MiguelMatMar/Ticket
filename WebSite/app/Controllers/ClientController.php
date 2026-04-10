@@ -24,11 +24,12 @@ class ClientController extends Controller {
      */
     public function index() {
         $userId = $_SESSION['user_id'];
+        $rol    = $_SESSION['user_role'] ?? 'cliente'; // CORRECCIÓN: era 'rol', es 'user_role'
 
         $data = [
             'usuario'       => $this->clientModel->getUserData($userId),
-            'stats'         => $this->clientModel->getDashboardStats($userId),
-            'tickets_lista' => $this->clientModel->getRecentTickets($userId),
+            'stats'         => $this->clientModel->getDashboardStats($userId, $rol),
+            'tickets_lista' => $this->clientModel->getRecentTickets($userId, $rol),
             'title'         => "Dashboard"
         ];
 
