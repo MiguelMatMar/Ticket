@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="/css/generals.css">
     <link rel="stylesheet" href="/css/accDetails.css">
     <link rel="stylesheet" href="/css/ticket_list.css">
+    <link rel="stylesheet" href="/css/user_list.css">
     
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-lite.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
@@ -47,6 +48,6 @@
     <script src="/js/open_ticket.js"></script>
     <script src="/js/user_dashboard.js"></script>
     <script src="/js/updatePassword.js"></script>
-
+    <script src="/js/user_list.js"></script>
 </body>
 </html>

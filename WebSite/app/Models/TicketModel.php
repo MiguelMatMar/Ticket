@@ -23,6 +23,17 @@ class TicketModel {
         ]);
         return $this->db->lastInsertId();
     }
+    public function getClients() {
+        $sql = "SELECT id, nombre, apellidos, email
+                FROM users
+                WHERE rol = 'cliente'
+                AND status = 1
+                ORDER BY nombre ASC, apellidos ASC";
+    
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
     public function addResponse($ticketId, $userId, $mensaje) {
         $sql = "INSERT INTO ticket_responses (ticket_id, user_id, mensaje, fecha) 

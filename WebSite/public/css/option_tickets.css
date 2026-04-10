@@ -20,3 +20,35 @@
     text-decoration: none;
     color: #18507F;
 }
+.staff-only-field select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #004a87;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #f5f8fb;
+    color: #111;
+    cursor: pointer;
+}
+
+.staff-only-field select:focus {
+    outline: none;
+    border-color: #003366;
+    background: #fff;
+}
+
+.staff-note {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #555;
+    background: #eef4fb;
+    border-left: 3px solid #004a87;
+    padding: 6px 10px;
+    border-radius: 3px;
+}
+
+.staff-note i {
+    color: #004a87;
+    margin-right: 4px;
+}

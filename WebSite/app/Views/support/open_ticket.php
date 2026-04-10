@@ -11,39 +11,62 @@
             <h2>ABRIR TICKET</h2>
             
             <form action="/support/store_ticket" method="POST" class="ticket-form" enctype="multipart/form-data">
-                
+
+                <?php if (in_array($usuario['rol'], ['admin', 'soporte'])): ?>
+                <!-- ── Selector de cliente (solo staff) ── -->
+                <div class="form-group full-width staff-only-field">
+                    <label for="target_user_id">
+                        <i class="fa-solid fa-user-tie"></i> Crear ticket para el cliente
+                    </label>
+                    <select name="target_user_id" id="target_user_id" required>
+                        <option value="">— Selecciona un cliente —</option>
+                        <?php foreach ($clientes as $cliente): ?>
+                            <option value="<?= htmlspecialchars($cliente['id']) ?>">
+                                #<?= htmlspecialchars($cliente['id']) ?> —
+                                <?= htmlspecialchars($cliente['nombre'] . ' ' . $cliente['apellidos']) ?>
+                                (<?= htmlspecialchars($cliente['email']) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                    <small class="staff-note">
+                        <i class="fa-solid fa-circle-info"></i>
+                        El ticket se creará en nombre del cliente seleccionado.
+                    </small>
+                </div>
+                <?php else: ?>
+                <!-- ── Datos del cliente (solo lectura para clientes normales) ── -->
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nameUser">Nombre</label>
-                        <input type="text" name="nameUser" id="nameUser" value="<?= htmlspecialchars($usuario['nombre']) ?>" readonly>
+                        <input type="text" name="nameUser" id="nameUser"
+                               value="<?= htmlspecialchars($usuario['nombre']) ?>" readonly>
                     </div>
                     <div class="form-group">
-                        <label for="emailUser">Dirección de Email</label> 
-                        <input type="email" name="emailUser" id="emailUser" value="<?= htmlspecialchars($usuario['email']) ?>" readonly>    
+                        <label for="emailUser">Dirección de Email</label>
+                        <input type="email" name="emailUser" id="emailUser"
+                               value="<?= htmlspecialchars($usuario['email']) ?>" readonly>
                     </div>
                 </div>
+                <?php endif; ?>
 
                 <div class="form-group full-width">
                     <label for="affairUser">Asunto</label>
-                    <input type="text" name="affairUser" id="affairUser" placeholder="¿En qué podemos ayudarte?" required>
+                    <input type="text" name="affairUser" id="affairUser"
+                           placeholder="¿En qué podemos ayudarte?" required>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="departmentUser">Departamento</label>
                         <select name="departmentUser" id="departmentUser">
-                            <option value="tecnico" <?php echo ($optionTicket == 'tecnico') ? 'selected' : ''; ?>>Soporte Informático</option>
-                            
-                            <option value="web" <?php echo ($optionTicket == 'web') ? 'selected' : ''; ?>>Soporte Web</option>
-                            
-                            <option value="hosting" <?php echo ($optionTicket == 'hosting') ? 'selected' : ''; ?>>Soporte Hosting</option>
-                            
-                            <option value="dominios" <?php echo ($optionTicket == 'dominios') ? 'selected' : ''; ?>>Dominios</option>
-                            <option value="gestion" <?php echo ($optionTicket == 'gestion') ? 'selected' : ''; ?>>Gestión / Facturación</option>
-                            <option value="contacto" <?php echo ($optionTicket == 'contacto') ? 'selected' : ''; ?>>Contacto</option>
-                            <option value="sugerencias" <?php echo ($optionTicket == 'sugerencias') ? 'selected' : ''; ?>>Sugerencias</option>
-                            
-                            </select>
+                            <option value="tecnico"    <?= ($optionTicket == 'tecnico')    ? 'selected' : '' ?>>Soporte Informático</option>
+                            <option value="web"        <?= ($optionTicket == 'web')        ? 'selected' : '' ?>>Soporte Web</option>
+                            <option value="hosting"    <?= ($optionTicket == 'hosting')    ? 'selected' : '' ?>>Soporte Hosting</option>
+                            <option value="dominios"   <?= ($optionTicket == 'dominios')   ? 'selected' : '' ?>>Dominios</option>
+                            <option value="gestion"    <?= ($optionTicket == 'gestion')    ? 'selected' : '' ?>>Gestión / Facturación</option>
+                            <option value="contacto"   <?= ($optionTicket == 'contacto')   ? 'selected' : '' ?>>Contacto</option>
+                            <option value="sugerencias"<?= ($optionTicket == 'sugerencias')? 'selected' : '' ?>>Sugerencias</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="priority">Prioridad</label>
@@ -58,7 +81,7 @@
 
                 <div class="form-group full-width">
                     <label for="messageUser">Mensaje</label>
-                    <textarea name="messageUser" id="messageUser"></textarea>
+                    <textarea name="messageUser" id="messageUser" required></textarea>
                 </div>
 
                 <div class="form-group" id="files">
