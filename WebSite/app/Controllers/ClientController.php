@@ -125,19 +125,23 @@ class ClientController extends Controller {
         $id_usuario = $_SESSION['user_id'];
 
         $data = [
-            'nombre'        => $_POST['nombre'] ?? '',
-            'apellidos'     => $_POST['apellidos'] ?? '',
-            'email'         => $_POST['email'] ?? '',
-            'empresa'       => $_POST['empresa'] ?? '',
-            'telefono'      => $_POST['telefono'] ?? '',
-            'nif'           => $_POST['nif'] ?? '',
-            'direccion1'    => $_POST['direccion1'] ?? '',
-            'direccion2'    => $_POST['direccion2'] ?? '',
-            'ciudad'        => $_POST['ciudad'] ?? '',
-            'provincia'     => $_POST['provincia'] ?? '',
-            'codigo_postal' => $_POST['codigo_postal'] ?? '',
-            'pais'          => $_POST['pais'] ?? 'España',
-            'idioma'        => $_POST['idioma'] ?? 'es'
+            'nombre'         => $_POST['nombre']         ?? '',
+            'apellidos'      => $_POST['apellidos']      ?? '',
+            'email'          => $_POST['email']          ?? '',
+            'empresa'        => $_POST['empresa']        ?? '',
+            'telefono'       => $_POST['telefono']       ?? '',
+            'nif'            => $_POST['nif']            ?? '',
+            'direccion1'     => $_POST['direccion1']     ?? '',
+            'direccion2'     => $_POST['direccion2']     ?? '',
+            'ciudad'         => $_POST['ciudad']         ?? '',
+            'provincia'      => $_POST['provincia']      ?? '',
+            'codigo_postal'  => $_POST['codigo_postal']  ?? '',
+            'pais'           => $_POST['pais']           ?? 'España',
+            'idioma'         => $_POST['idioma']         ?? 'es',
+            // ── Campos de contacto ──────────────────────────────
+            'telefono_movil' => $_POST['telefono_movil'] ?? '',
+            'whatsapp'       => $_POST['whatsapp']       ?? '',
+            'email_contacto' => $_POST['email_contacto'] ?? '',
         ];
 
         if (empty($data['nombre']) || empty($data['apellidos']) || empty($data['email']) || empty($data['nif'])) {
@@ -155,4 +159,4 @@ class ClientController extends Controller {
         }
         exit;
     }
-}   
+}

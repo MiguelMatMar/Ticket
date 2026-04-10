@@ -1,4 +1,6 @@
-/* Layout General */
+/* ============================================================
+   Layout General
+   ============================================================ */
 .main-content-wrapper {
     max-width: 1300px;
     margin: 40px auto;
@@ -19,15 +21,13 @@
     align-items: flex-start;
 }
 
-.content-left {
-    flex: 3;
-}
+.content-left  { flex: 3; }
+.sidebar-right { flex: 1; }
 
-.sidebar-right {
-    flex: 1;
-}
 
-/* Panel Formulario */
+/* ============================================================
+   Panel Formulario
+   ============================================================ */
 .custom-panel {
     background: #fff;
     border: 1px solid #e7e7e7;
@@ -50,7 +50,10 @@
     margin: 0;
 }
 
-/* Rejilla de Inputs */
+
+/* ============================================================
+   Rejilla de Inputs
+   ============================================================ */
 .form-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -83,6 +86,7 @@
     outline: none;
     transition: all 0.3s ease;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .form-control:focus {
@@ -90,7 +94,134 @@
     background-color: #fff;
 }
 
-/* Botones */
+.form-control[readonly] {
+    cursor: default;
+}
+
+select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23666' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 36px;
+    cursor: pointer;
+}
+
+
+/* ============================================================
+   Código Postal — wrapper + iconos de estado
+   (portado de login.css)
+   ============================================================ */
+.postal-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* El padding-right deja hueco al icono */
+.postal-input-wrapper .form-control {
+    padding-right: 38px;
+}
+
+.postal-spinner,
+.postal-ok,
+.postal-error {
+    position: absolute;
+    right: 12px;
+    font-size: 15px;
+    display: none;
+    pointer-events: none;
+}
+
+.postal-spinner { color: #888; }
+.postal-ok      { color: #2e9e5b; }
+.postal-error   { color: #c0392b; }
+
+.postal-spinner.visible,
+.postal-ok.visible,
+.postal-error.visible {
+    display: inline-flex;
+}
+
+.postal-hint {
+    font-size: 12px;
+    color: #888;
+    margin: 5px 0 0;
+    line-height: 1.4;
+}
+
+.postal-hint.is-error { color: #c0392b; }
+
+
+/* ============================================================
+   Campos autocompletados (readonly — provincia / ciudad)
+   (portado de login.css)
+   ============================================================ */
+input.autofilled {
+    background: #f5f8fb;
+    color: #444;
+    cursor: default;
+}
+
+input.autofilled.filled {
+    background: #eef6ee;
+    color: #2e9e5b;
+    font-weight: 500;
+}
+
+
+/* ============================================================
+   Sección de Contacto — WhatsApp checkbox + nota informativa
+   (portado de login.css)
+   ============================================================ */
+.input-with-check {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.same-as-mobile {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+    user-select: none;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.same-as-mobile input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+    accent-color: #18507F;
+    flex-shrink: 0;
+}
+
+.contact-note {
+    font-size: 12.5px;
+    color: #777;
+    line-height: 1.5;
+    margin: 0;
+    padding: 10px 12px;
+    background: #f5f8fb;
+    border-left: 3px solid #18507F;
+    border-radius: 4px;
+    align-self: flex-start;
+}
+
+.contact-note i {
+    color: #18507F;
+    margin-right: 5px;
+}
+
+
+/* ============================================================
+   Botones de Acción
+   ============================================================ */
 .form-actions {
     display: flex;
     flex-direction: row-reverse;
@@ -111,6 +242,11 @@
     text-transform: uppercase;
     font-size: 13px;
     cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-save:hover {
+    background-color: #123d60;
 }
 
 .btn-cancel {
@@ -123,9 +259,17 @@
     text-transform: uppercase;
     font-size: 13px;
     cursor: pointer;
+    transition: background 0.2s ease;
 }
 
-/* Sidebar */
+.btn-cancel:hover {
+    background-color: #b5d9f5;
+}
+
+
+/* ============================================================
+   Sidebar
+   ============================================================ */
 .sidebar-panel {
     background: #fff;
     border: 1px solid #e7e7e7;
@@ -168,8 +312,10 @@
     background-color: #f9f9f9;
 }
 
-/* ── Responsive ── */
 
+/* ============================================================
+   Responsive
+   ============================================================ */
 @media (max-width: 1024px) {
     .layout-container {
         flex-direction: column;
@@ -185,7 +331,6 @@
         grid-template-columns: repeat(2, 1fr);
     }
 
-    /* span-2 en 2 columnas ocupa todo */
     .form-group-custom.span-2 {
         grid-column: span 2;
     }
@@ -205,7 +350,6 @@
         font-size: 20px;
     }
 
-    /* Sidebar horizontal en tablet pequeña */
     .sidebar-list {
         flex-direction: row;
         flex-wrap: wrap;
@@ -224,12 +368,100 @@
     }
 }
 
+.password-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+ 
+.password-input-wrapper .form-control {
+    padding-right: 42px;
+}
+ 
+/* Icono ojo */
+.cp-toggle {
+    position: absolute;
+    right: 14px;
+    cursor: pointer;
+    color: #888;
+    font-size: 14px;
+    transition: color 0.2s;
+}
+ 
+.cp-toggle:hover {
+    color: #18507F;
+}
+ 
+/* ── Medidor de fortaleza ── */
+.cp-strength-wrapper {
+    margin-top: 10px;
+}
+ 
+.cp-strength-bar {
+    background: #e0e0e0;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+ 
+#cp-strength-meter {
+    height: 100%;
+    width: 0;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+ 
+#cp-strength-text {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+}
+ 
+#cp-strength-text span {
+    font-weight: 700;
+}
+ 
+/* Niveles del medidor */
+.cp-strength-weak   { background-color: #f44336; width: 25%  !important; }
+.cp-strength-medium { background-color: #ffa000; width: 50%  !important; }
+.cp-strength-good   { background-color: #2196f3; width: 75%  !important; }
+.cp-strength-strong { background-color: #4caf50; width: 100% !important; }
+ 
+/* ── Lista de requisitos ── */
+.cp-requirements {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0;
+    font-size: 12px;
+}
+ 
+.cp-requirements li {
+    color: #aaa;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: color 0.25s ease;
+}
+ 
+.cp-requirements li i {
+    font-size: 7px;
+    flex-shrink: 0;
+}
+ 
+.cp-requirements li.valid {
+    color: #2e7d32;
+}
+ 
+.cp-requirements li.invalid {
+    color: #aaa;
+}
+
 @media (max-width: 600px) {
     .form-grid {
         grid-template-columns: 1fr;
     }
 
-    /* En 1 columna, span-2 no tiene efecto */
     .form-group-custom.span-2 {
         grid-column: span 1;
     }
@@ -244,7 +476,6 @@
         text-align: center;
     }
 
-    /* Sidebar vuelve a columna en móvil pequeño */
     .sidebar-list {
         flex-direction: column;
     }
