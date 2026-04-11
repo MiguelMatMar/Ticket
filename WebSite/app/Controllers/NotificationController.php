@@ -61,4 +61,16 @@ class NotificationController extends Controller {
         echo json_encode(['success' => $result]);
         exit;
     }
+    /**
+     * Devuelve los datos completos (id, email, nombre) de todos los usuarios
+     * con rol soporte o admin activos.
+     * Usado para enviarles emails de notificación.
+     */
+    public function getStaffUsersWithEmail(): array {
+        $sql = "SELECT id, email, nombre FROM users 
+                WHERE rol IN ('soporte', 'admin') AND status = 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }

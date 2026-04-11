@@ -26,6 +26,13 @@ class NotificationModel {
         $stmt->execute(['user_id' => $userId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+    public function getStaffUsersWithEmail(): array {
+        $sql = "SELECT id, email, nombre FROM users 
+                WHERE rol IN ('soporte', 'admin') AND status = 1";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 
     /**
      * Marca una notificación concreta como leída,

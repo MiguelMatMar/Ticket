@@ -5,11 +5,13 @@ use App\Core\Controller;
 use App\Models\ClientModel;
 use App\Models\TicketModel;
 use App\Models\NotificationModel;
+use App\Models\EmailService;
 
 class SupportController extends Controller {
     private $clientModel;
     private $ticketModel;
     private $notificationModel;
+    private $emailService;
 
     public function __construct() {
         if (!isset($_SESSION['user_id'])) {
@@ -19,6 +21,7 @@ class SupportController extends Controller {
         $this->clientModel       = new ClientModel();
         $this->ticketModel       = new TicketModel();
         $this->notificationModel = new NotificationModel();
+        $this->emailService      = new EmailService();
     }
 
     public function faq() {
@@ -46,7 +49,6 @@ class SupportController extends Controller {
             'tickets_lista' => $this->clientModel->getRecentTickets($userId, $userRole),
             'title'         => "Abrir Ticket",
             'optionTicket'  => $optionTicket,
-            // Lista de clientes solo para staff; vacía para clientes normales
             'clientes'      => in_array($userRole, ['admin', 'soporte'])
                                     ? $this->ticketModel->getClients()
                                     : []
@@ -73,22 +75,17 @@ class SupportController extends Controller {
             return;
         }
 
-        // ── Determinar el propietario real del ticket ─────────────────────────
-        // Si es staff y ha seleccionado un cliente, el ticket se crea para ese cliente.
-        // En cualquier otro caso, se crea para el propio usuario que lo envía.
         if (in_array($userRole, ['admin', 'soporte']) && !empty($_POST['target_user_id'])) {
             $ticketOwnerId = (int) $_POST['target_user_id'];
         } else {
             $ticketOwnerId = $sessionUserId;
         }
 
-        // ── Datos del formulario ──────────────────────────────────────────────
-        $asunto  = trim($_POST['affairUser'] ?? '');
-        $mensaje = trim($_POST['messageUser'] ?? '');
+        $asunto       = trim($_POST['affairUser'] ?? '');
+        $mensaje      = trim($_POST['messageUser'] ?? '');
         $departamento = $_POST['departmentUser'];
         $prioridad    = $_POST['priority'];
 
-        // ── Crear el ticket a nombre del propietario ──────────────────────────
         $ticketId = $this->ticketModel->createTicket(
             $ticketOwnerId,
             $asunto,
@@ -117,9 +114,9 @@ class SupportController extends Controller {
             }
         }
 
-        // ── Notificaciones ────────────────────────────────────────────────────
+        // ── Notificaciones internas + Email ───────────────────────────────────
         if (in_array($userRole, ['admin', 'soporte'])) {
-            // Staff creó el ticket: notificar al cliente propietario
+            // Staff creó el ticket en nombre del cliente: solo notificación interna
             if ($ticketOwnerId !== $sessionUserId) {
                 $this->notificationModel->create(
                     $ticketOwnerId,
@@ -128,7 +125,7 @@ class SupportController extends Controller {
                 );
             }
         } else {
-            // Cliente creó su propio ticket: notificar a todo el staff
+            // Cliente creó su propio ticket: notificación interna + email al staff
             $staffIds = $this->notificationModel->getStaffUsers();
             if (!empty($staffIds)) {
                 $this->notificationModel->createBulk(
@@ -137,6 +134,20 @@ class SupportController extends Controller {
                     "Nuevo ticket #{$ticketId}: \"{$asunto}\""
                 );
             }
+
+            $staffData     = $this->notificationModel->getStaffUsersWithEmail();
+            $clienteData   = $this->clientModel->getUserData($sessionUserId);
+            $clienteNombre = trim(($clienteData['nombre'] ?? '') . ' ' . ($clienteData['apellidos'] ?? ''));
+
+            $this->emailService->sendNewTicketToStaff(
+                $staffData,
+                $ticketId,
+                $asunto,
+                $mensaje,
+                $clienteNombre,
+                $prioridad,
+                $departamento
+            );
         }
 
         // ── Respuesta con SweetAlert ──────────────────────────────────────────
@@ -293,6 +304,7 @@ class SupportController extends Controller {
             $this->ticketModel->updateStatus($ticketId, 'customer-reply');
         }
 
+        // ── Archivos adjuntos ─────────────────────────────────────────────────
         if (isset($_FILES['fileUsers']) && is_array($_FILES['fileUsers']['name'])) {
             $uploadDir = __DIR__ . '/../../storage/tickets/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
@@ -312,7 +324,9 @@ class SupportController extends Controller {
 
         $this->ticketModel->updateLastActivity($ticketId);
 
+        // ── Notificaciones internas + Email ───────────────────────────────────
         if (in_array($userRole, ['soporte', 'admin'])) {
+            // Staff responde: notificación interna + email al cliente
             $ticket = $this->ticketModel->getTicketOwner($ticketId);
             if ($ticket) {
                 $this->notificationModel->create(
@@ -320,14 +334,47 @@ class SupportController extends Controller {
                     $ticketId,
                     "Tu ticket #{$ticketId} tiene una nueva respuesta."
                 );
+
+                $ticketData  = $this->ticketModel->getTicketByIdAdmin($ticketId);
+                $staffData   = $this->clientModel->getUserData($userId);
+                $staffNombre = trim(($staffData['nombre'] ?? '') . ' ' . ($staffData['apellidos'] ?? ''));
+
+                if ($ticketData && !empty($ticketData['user_email'])) {
+                    $clienteNombre = trim($ticketData['user_nombre'] ?? '');
+
+                    $this->emailService->sendNewCommentToClient(
+                        $ticketData['user_email'],
+                        $clienteNombre,
+                        (int) $ticketId,
+                        $ticketData['asunto'],
+                        $mensaje,
+                        $staffNombre
+                    );
+                }
             }
         } else {
+            // Cliente responde: notificación interna + email al staff
             $staffIds = $this->notificationModel->getStaffUsers();
             $this->notificationModel->createBulk(
                 $staffIds,
                 $ticketId,
                 "El cliente ha respondido al ticket #{$ticketId}."
             );
+
+            $staffEmailData = $this->notificationModel->getStaffUsersWithEmail();
+            $clienteData    = $this->clientModel->getUserData($userId);
+            $clienteNombre  = trim(($clienteData['nombre'] ?? '') . ' ' . ($clienteData['apellidos'] ?? ''));
+            $ticketData     = $this->ticketModel->getTicketByIdAdmin($ticketId);
+
+            if ($ticketData) {
+                $this->emailService->sendClientReplyToStaff(
+                    $staffEmailData,
+                    (int) $ticketId,
+                    $ticketData['asunto'],
+                    $mensaje,
+                    $clienteNombre
+                );
+            }
         }
 
         $this->redirect('/support/ticket?ticketId=' . $ticketId);
