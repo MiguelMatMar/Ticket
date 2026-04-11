@@ -14,9 +14,18 @@ if (file_exists($envFile)) {
 return [
     'db' => [
         'host'    => $_ENV['DB_HOST']    ?? 'localhost',
-        'name'    => $_ENV['DB_NAME']    ?? 'sdondigital_ticket_system',
+        'name'    => $_ENV['DB_NAME']    ?? '',
         'user'    => $_ENV['DB_USER']    ?? 'root',
         'pass'    => $_ENV['DB_PASS']    ?? '',
         'charset' => $_ENV['DB_CHARSET'] ?? 'utf8mb4',
+    ],
+    'mail' => [
+        'host'      => $_ENV['MAIL_HOST']      ?? '',
+        'port'      => $_ENV['MAIL_PORT']      ?? 465,
+        'secure'    => $_ENV['MAIL_SECURE']    ?? 'ssl',
+        'user'      => $_ENV['MAIL_USER']      ?? '',
+        'pass'      => $_ENV['MAIL_PASS']      ?? '',
+        'from'      => $_ENV['MAIL_FROM']      ?? '',
+        'from_name' => $_ENV['MAIL_FROM_NAME'] ?? 'Soporte Técnico',
     ]
 ];
