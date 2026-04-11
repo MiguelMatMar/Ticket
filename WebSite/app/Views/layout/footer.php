@@ -1,7 +1,7 @@
 <footer>
     <div class="footer-container">
         <div class="footer-left">
-            <p>&copy; 2024 DonDigital. Todos los derechos reservados.</p>
+            <p>&copy;DonDigital. Todos los derechos reservados.</p>
         </div>
         
         <div class="footer-right">
