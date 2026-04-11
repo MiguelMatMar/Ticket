@@ -116,12 +116,39 @@ class SupportController extends Controller {
 
         // ── Notificaciones internas + Email ───────────────────────────────────
         if (in_array($userRole, ['admin', 'soporte'])) {
-            // Staff creó el ticket en nombre del cliente: solo notificación interna
             if ($ticketOwnerId !== $sessionUserId) {
+                // Notificación interna al cliente
                 $this->notificationModel->create(
                     $ticketOwnerId,
                     $ticketId,
                     "Se ha abierto el ticket #{$ticketId}: \"{$asunto}\" en tu nombre."
+                );
+
+                // Email al cliente avisando de que se le ha creado un ticket
+                $clienteData   = $this->clientModel->getUserData($ticketOwnerId);
+                $clienteNombre = trim(($clienteData['nombre'] ?? '') . ' ' . ($clienteData['apellidos'] ?? ''));
+                if (!empty($clienteData['email'])) {
+                    $this->emailService->sendNewCommentToClient(
+                        $clienteData['email'],
+                        $clienteNombre,
+                        $ticketId,
+                        $asunto,
+                        $mensaje,
+                        'Soporte Técnico'
+                    );
+                }
+
+                // Email a admins/técnicos avisando de que se ha abierto un ticket
+                $staffData = $this->notificationModel->getStaffUsersWithEmail();
+                $staffNombre = trim(($this->clientModel->getUserData($sessionUserId)['nombre'] ?? '') . ' ' . ($this->clientModel->getUserData($sessionUserId)['apellidos'] ?? ''));
+                $this->emailService->sendNewTicketToStaff(
+                    $staffData,
+                    $ticketId,
+                    $asunto,
+                    $mensaje,
+                    $clienteNombre . ' (creado por ' . $staffNombre . ')',
+                    $prioridad,
+                    $departamento
                 );
             }
         } else {
