@@ -1,6 +1,12 @@
 <div class="content-ticket">
     <div class="header-main">
-        <h1>Ticket #<?= htmlspecialchars($ticket['id']) . " - " . htmlspecialchars($ticket['asunto']) ?></h1>
+        <h1>
+            Ticket #<?= htmlspecialchars($ticket['id']) ?>
+            <?php if ((int)$ticket['ronda'] > 1): ?>
+                - <?= (int)$ticket['ronda'] ?>
+            <?php endif; ?>
+            - <?= htmlspecialchars($ticket['asunto']) ?>
+        </h1>
     </div>
     <div class="breadcrumb">
         <p>Administración > 
@@ -191,7 +197,66 @@
                         <?php endif; ?>
                     </div>
                 </div>
+
+                <?php if (isset($userRole) && in_array($userRole, ['soporte', 'admin'])): ?>
+                <!-- ─── BLOQUE DE CONTROL DE TRABAJO (solo staff) ─────────────── -->
+                <div class="info-ticket" id="work-session-box">
+                    <div class="headerInfo">
+                        <i class="fa-solid fa-clock"></i>
+                        <p>TIEMPO DE TRABAJO</p>
+                    </div>
+
+                    <div class="mainInfo">
+                        <p>Ronda</p>
+                        <p><strong><?= (int)$ticket['ronda'] ?></strong></p>
+                    </div>
+
+                    <div class="mainInfo">
+                        <p>Tiempo esta ronda</p>
+                        <p id="work-total-ronda">Cargando...</p>
+                    </div>
+
+                    <div class="mainInfo">
+                        <p>Tiempo total global</p>
+                        <p id="work-total-global">Cargando...</p>
+                    </div>
+
+                    <!-- Cronómetro activo -->
+                    <div class="mainInfo" id="work-chrono-row" style="display:none;">
+                        <p>Tiempo sesión</p>
+                        <p><strong id="work-chrono">00:00:00</strong></p>
+                    </div>
+
+                    <!-- Mensajes de estado -->
+                    <div id="work-status-msg" style="padding: 8px 16px; font-size: 13px; color: #666;"></div>
+
+                    <!-- Botones de acción -->
+                    <div class="footerInfoTicket" id="work-buttons" style="flex-direction: column; gap: 8px;">
+                        <!-- Se renderizan dinámicamente desde JS -->
+                    </div>
+                </div>
+
+                <!-- Historial de sesiones -->
+                <div class="info-ticket" id="work-history-box">
+                    <div class="headerInfo">
+                        <i class="fa-solid fa-list-check"></i>
+                        <p>HISTORIAL DE TRABAJO</p>
+                    </div>
+                    <div id="work-history-content" style="padding: 8px 16px; font-size: 13px;">
+                        Cargando...
+                    </div>
+                </div>
+                <?php endif; ?>
+                <!-- ─────────────────────────────────────────────────────────── -->
+
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    const TICKET_ID = <?= (int)$ticket['id'] ?>;
+    const USER_ID   = <?= (int)$_SESSION['user_id'] ?>;
+    const IS_CLOSED = <?= $ticket['status'] === 'closed' ? 'true' : 'false' ?>;
+</script>
+<script src="/js/ticket.js"></script>

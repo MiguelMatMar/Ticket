@@ -6,12 +6,14 @@ use App\Models\ClientModel;
 use App\Models\TicketModel;
 use App\Models\NotificationModel;
 use App\Models\EmailService;
+use App\Models\WorkSessionModel;
 
 class SupportController extends Controller {
     private $clientModel;
     private $ticketModel;
     private $notificationModel;
     private $emailService;
+    private $workSessionModel;
 
     public function __construct() {
         if (!isset($_SESSION['user_id'])) {
@@ -22,6 +24,7 @@ class SupportController extends Controller {
         $this->ticketModel       = new TicketModel();
         $this->notificationModel = new NotificationModel();
         $this->emailService      = new EmailService();
+        $this->workSessionModel = new WorkSessionModel();
     }
 
     public function faq() {
@@ -437,6 +440,13 @@ class SupportController extends Controller {
         }
 
         if ($ticketId) {
+            // 1. Forzar cierre de cualquier sesión de trabajo activa que hubiera quedado abierta
+            $this->workSessionModel->forceFinishActiveSessions((int) $ticketId);
+
+            // 2. Incrementar la ronda del ticket
+            $this->ticketModel->incrementRonda((int) $ticketId);
+
+            // 3. Reabrir el ticket
             $this->ticketModel->updateStatus($ticketId, 'open');
             $this->ticketModel->updateLastActivity($ticketId);
         }

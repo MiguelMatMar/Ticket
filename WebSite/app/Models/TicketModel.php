@@ -281,4 +281,14 @@ class TicketModel {
         $stmt->execute(['email' => $email]);
         return $stmt->fetch() !== false;
     }
+    /**
+     * Incrementa en 1 la ronda de un ticket.
+     * Se llama cuando un ticket se reabre.
+     */
+    public function incrementRonda(int $ticketId): bool {
+        $sql = "UPDATE tickets SET ronda = ronda + 1 WHERE id = :id";
+        $stmt = $this->db->prepare($sql);
+        return $stmt->execute(['id' => $ticketId]);
+    }
+
 }
